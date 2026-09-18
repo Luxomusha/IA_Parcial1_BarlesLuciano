@@ -82,9 +82,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Boid
   maxSpeed: 4
   maxSteering: 5
-  separationRadius: 5.5
-  neighborRadius: 5
-  separationWeight: 2
+  separationRadius: 3.84
+  neighborRadius: 4.68
+  separationWeight: 1.6
   alignmentWeight: 1.3
   cohesionWeight: 1.3
   wanderWeight: 0.5

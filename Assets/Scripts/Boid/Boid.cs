@@ -132,8 +132,23 @@ public class Boid : Agent
         if (FlockArea.Instance != null)
             transform.position = FlockArea.Instance.Wrap(transform.position);
 
+        ResolverSuperposicion();
+
         if (_velocity.sqrMagnitude > 0.01f)
             transform.forward = _velocity.normalized;
+    }
+
+    private void ResolverSuperposicion()
+    {
+        foreach (Boid other in GetAllNearby(separationRadius))
+        {
+            Vector3 diff = transform.position - other.transform.position;
+            diff.y = 0f;
+            float dist = diff.magnitude;
+
+            if (dist < separationRadius && dist > 0.0001f)
+                transform.position += diff.normalized * (separationRadius - dist);
+        }
     }
 
     public void Engancharse()
@@ -151,6 +166,21 @@ public class Boid : Agent
         {
             if (other == this) continue;
             if (other.enganchado || other.estaInactivo) continue;
+            float sqrDist = (other.transform.position - transform.position).sqrMagnitude;
+            if (sqrDist <= sqrRadius)
+                result.Add(other);
+        }
+
+        return result;
+    }
+
+    private List<Boid> GetAllNearby(float radius)
+    {
+        List<Boid> result = new List<Boid>();
+        float sqrRadius = radius * radius;
+        foreach (Boid other in allBoids)
+        {
+            if (other == this) continue;
             float sqrDist = (other.transform.position - transform.position).sqrMagnitude;
             if (sqrDist <= sqrRadius)
                 result.Add(other);
