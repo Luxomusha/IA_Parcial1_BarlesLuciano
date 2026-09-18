@@ -82,7 +82,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Boid
   maxSpeed: 4
   maxSteering: 5
-  separationRadius: 4
+  separationRadius: 5.5
   neighborRadius: 5
   separationWeight: 2
   alignmentWeight: 1.3
@@ -94,6 +94,7 @@ MonoBehaviour:
   arriveSlowRadius: 2.44
   interactRadius: 1.28
   mostrarGizmos: 1
+  sonidoDolor: {fileID: 8300000, guid: 0c1d4d9bf80fa144498130c017411fd7, type: 3}
 --- !u!136 &718971145923351302
 CapsuleCollider:
   m_ObjectHideFlags: 0

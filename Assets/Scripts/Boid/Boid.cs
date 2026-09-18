@@ -34,6 +34,10 @@ public class Boid : Agent
     [Header("Gizmos")]
     [SerializeField] private bool mostrarGizmos = true;
 
+    [Header("Audio")]
+    [SerializeField] private AudioClip sonidoDolor;
+    private AudioSource audioSource;
+
     private static readonly List<Boid> allBoids = new List<Boid>();
     public static readonly List<Boid> enganchados = new List<Boid>();
     private bool estaInactivo = false;
@@ -50,6 +54,10 @@ public class Boid : Agent
         Vector2 dirAleatoria = Random.insideUnitCircle.normalized;
         wanderDireccion = new Vector3(dirAleatoria.x, 0f, dirAleatoria.y);
         _velocity = wanderDireccion * maxSpeed * 0.5f;
+
+        audioSource = GetComponent<AudioSource>();
+        if (audioSource == null)
+            audioSource = gameObject.AddComponent<AudioSource>();
     }
 
     private void OnDrawGizmos()
@@ -266,6 +274,9 @@ public class Boid : Agent
 
         estaInactivo = true;
         inactivos.Add(this);
+
+        if (sonidoDolor != null && audioSource != null)
+            audioSource.PlayOneShot(sonidoDolor);
 
         transform.Rotate(0f, 90f, 90f, Space.Self);
     }
