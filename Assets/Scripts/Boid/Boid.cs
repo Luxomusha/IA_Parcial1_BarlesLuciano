@@ -8,8 +8,8 @@ public class Boid : Agent
     [SerializeField] private float maxSteering = 10f;
 
     [Header("Radios de percepción")]
-    [SerializeField] private float separationRadius = 1.5f; // chico
-    [SerializeField] private float neighborRadius = 4f;      // grande (alignment + cohesion)
+    [SerializeField] private float separationRadius = 1.5f;
+    [SerializeField] private float neighborRadius = 4f;
 
     [Header("Pesos")]
     [SerializeField] private float separationWeight = 1.5f;
@@ -37,7 +37,7 @@ public class Boid : Agent
     private static readonly List<Boid> allBoids = new List<Boid>();
     public static readonly List<Boid> enganchados = new List<Boid>();
     private bool estaInactivo = false;
-    private static readonly List<Boid> inactivos = new List<Boid>(); // para que el Cazador los encuentre en Gather
+    private static readonly List<Boid> inactivos = new List<Boid>();
 
     private void OnEnable() => allBoids.Add(this);
     private void OnDisable() => allBoids.Remove(this);
@@ -75,10 +75,10 @@ public class Boid : Agent
     private void Update()
     {
         if (estaInactivo)
-            return; // esperando a que el Cazador lo recolecte (GatherState)
+            return;
 
         if (enganchado)
-            return; // congelado: no evade, no flockea, indefenso
+            return;
 
         Vector3 steering;
         bool cazadorCerca = cazador != null &&
@@ -94,7 +94,7 @@ public class Boid : Agent
             if (dist <= interactRadius)
             {
                 cebo.Atrapar(this);
-                return; // ya quedó congelado este mismo frame
+                return;
             }
 
             List<Boid> closeNeighbors = GetNeighbors(separationRadius);
@@ -118,7 +118,7 @@ public class Boid : Agent
 
         steering = Vector3.ClampMagnitude(steering, maxSteering * Time.deltaTime);
         _velocity = Vector3.ClampMagnitude(_velocity + steering, maxSpeed);
-        _velocity.y = 0f; // animal terrestre: nunca se mueve en altura
+        _velocity.y = 0f;
 
         transform.position += _velocity * Time.deltaTime;
         if (FlockArea.Instance != null)
@@ -259,7 +259,7 @@ public class Boid : Agent
     public void RecibirAtaque()
     {
         Debug.Log($"{name}: entró a RecibirAtaque()");
-        if (estaInactivo) return; // ya estaba muerto, no repetir
+        if (estaInactivo) return;
 
         enganchado = false;
         enganchados.Remove(this);
@@ -267,7 +267,7 @@ public class Boid : Agent
         estaInactivo = true;
         inactivos.Add(this);
 
-        transform.Rotate(0f, 90f, 90f, Space.Self); // lo tumba de costado mientras está caído
+        transform.Rotate(0f, 90f, 90f, Space.Self);
     }
 
     public void Recolectar()

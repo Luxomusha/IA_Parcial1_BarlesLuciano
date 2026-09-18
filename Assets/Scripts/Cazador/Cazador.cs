@@ -9,7 +9,7 @@ public class Cazador : Agent
 
     [Header("Patrol")]
     public Transform[] waypoints;
-    public bool invertirAlFinal = true; // false = vuelve siempre al primero
+    public bool invertirAlFinal = true;
 
     [Header("Spawn de cebo")]
     public GameObject ceboPrefab;
@@ -116,14 +116,12 @@ public class Cazador : Agent
                 objetivo.RecibirAtaque();
                 cooldown = 0f;
 
-                // prioriza ir a recolectar al que acaba de caer antes de encadenar otro ataque
                 if (Boid.BuscarInactivoParaCazador(cazador.transform.position, cazador.rangoPercepcion) != null)
                 {
                     StateMachine.ChangeState(EstadoCazador.Gather);
                     return;
                 }
 
-                // si no hay nada para recolectar, busca otro objetivo cercano; si no hay, vuelve a patrullar
                 objetivo = Boid.BuscarObjetivoParaCazador(cazador.transform.position, cazador.rangoPercepcion);
                 if (objetivo == null)
                     StateMachine.ChangeState(EstadoCazador.Patrol);
@@ -177,7 +175,6 @@ public class Cazador : Agent
 
             if (distancia <= cazador.meleeAttackRadius)
             {
-                // llegó: se queda quieto (azul) mostrando que está recolectando
                 cazador.SetVelocity(Vector3.zero);
                 timerRecoleccion += Time.deltaTime;
 

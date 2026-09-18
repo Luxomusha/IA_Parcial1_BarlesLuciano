@@ -15,7 +15,6 @@ public class FlockArea : MonoBehaviour
             Instance = null;
     }
 
-    // Efecto Pac-Man: si se sale por un lado, reaparece del lado opuesto.
     public Vector3 Wrap(Vector3 position)
     {
         Vector3 center = transform.position;

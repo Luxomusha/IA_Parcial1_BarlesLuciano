@@ -6,7 +6,7 @@ public class ObjetoInteres : MonoBehaviour
 
     [Header("Gizmos")]
     [SerializeField] private bool mostrarGizmos = true;
-    [SerializeField] private float radioGizmo = 0.5f; // solo visual: referencia del interactRadius del Boid
+    [SerializeField] private float radioGizmo = 0.5f;
 
     private void Update()
     {

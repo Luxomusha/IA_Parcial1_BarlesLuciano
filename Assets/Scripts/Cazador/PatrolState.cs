@@ -22,7 +22,6 @@ public class PatrolState : State
         if (cazador.waypoints == null || cazador.waypoints.Length == 0)
             return;
 
-        // TODO 1: moverse hacia cazador.waypoints[waypointIndex] (mismo patrón que Base/PatrolAgent.cs)
         Transform destino = cazador.waypoints[waypointIndex];
         Vector3 haciaDestino = destino.position - cazador.transform.position;
         haciaDestino.y = 0f;
@@ -36,9 +35,6 @@ public class PatrolState : State
         if (velocidad != Vector3.zero)
             cazador.transform.forward = velocidad.normalized;
 
-        // TODO 2: al llegar (distancia chica), avanzar waypointIndex += direccion;
-        //         si te pasás del array: si cazador.invertirAlFinal, invertir direccion (*-1),
-        //         si no, volver waypointIndex a 0
         if (haciaDestino.magnitude < 0.2f)
         {
             waypointIndex += direccion;
@@ -47,7 +43,7 @@ public class PatrolState : State
                 if (cazador.invertirAlFinal)
                 {
                     direccion *= -1;
-                    waypointIndex += direccion * 2; // deshace el paso inválido y avanza en la nueva dirección
+                    waypointIndex += direccion * 2;
                 }
                 else
                 {
@@ -56,10 +52,6 @@ public class PatrolState : State
             }
         }
 
-        // TODO 3: spawnTimer += Time.deltaTime; si spawnTimer >= cazador.intervaloSpawn
-        //         y hay menos de cazador.maxCebosActivos objetos activos
-        //         (FindObjectsByType<ObjetoInteres>(...).Length), Instantiate(cazador.ceboPrefab, ...)
-        //         y reiniciar spawnTimer = 0
         spawnTimer += Time.deltaTime;
         if (spawnTimer >= cazador.intervaloSpawn)
         {
@@ -70,17 +62,12 @@ public class PatrolState : State
             spawnTimer = 0f;
         }
 
-        // TODO 4 (transición a Attack): usar Boid.BuscarObjetivoParaCazador(...) —
-        //         lo agregamos ahora a Boid.cs, miralo abajo — y si hay un boid en
-        //         cazador.rangoPercepcion, StateMachine.ChangeState(Cazador.EstadoCazador.Attack)
         if (Boid.BuscarObjetivoParaCazador(cazador.transform.position, cazador.rangoPercepcion) != null)
         {
             StateMachine.ChangeState(Cazador.EstadoCazador.Attack);
             return;
         }
 
-        // TODO 5 (transición a Gather): si Boid.inactivos tiene alguno dentro de
-        //         cazador.rangoPercepcion, StateMachine.ChangeState(Cazador.EstadoCazador.Gather)
         if (Boid.BuscarInactivoParaCazador(cazador.transform.position, cazador.rangoPercepcion) != null)
         {
             StateMachine.ChangeState(Cazador.EstadoCazador.Gather);
