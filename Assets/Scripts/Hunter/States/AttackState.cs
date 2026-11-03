@@ -1,63 +1,66 @@
 using UnityEngine;
 
-public class AttackState : State
+// Entered only with the TBA finished and a live boid in sight.
+// Melee inside MeleeAttackRadius, ranged inside RangeAttackRadius,
+// otherwise Pursuit (predicting the boid's future position).
+public class AttackState : HunterStateBase
 {
-    private const float ReachTolerance = 0.01f;
-
-    private readonly Hunter hunter;
     private Boid target;
-    private float cooldown;
 
-    public AttackState(StateMachine stateMachine, Hunter hunter) : base(stateMachine)
-    {
-        this.hunter = hunter;
-    }
+    public AttackState(StateMachine stateMachine, Hunter hunter) : base(stateMachine, hunter) { }
 
     public override void Enter()
     {
+        base.Enter();
         hunter.SetColor(Color.red);
         target = hunter.FindClosestActiveBoid();
-        cooldown = 0f;
     }
 
     public override void Update()
     {
-        if (!IsValidTarget(target))
+        if (TryHigherPriority()) return;
+
+        // Target lost (out of sight or already down): back to Search, TBA untouched.
+        if (target == null || target.IsDown || !hunter.CanSee(target))
         {
-            target = hunter.FindClosestActiveBoid();
-            if (target == null)
-            {
-                StateMachine.ChangeState(Hunter.HunterState.Patrol);
-                return;
-            }
-        }
-
-        float remaining = hunter.MoveTowards(target.transform.position, hunter.MeleeAttackRadius);
-
-        cooldown += Time.deltaTime;
-        bool inMeleeRange = remaining <= hunter.MeleeAttackRadius + ReachTolerance;
-        if (!inMeleeRange || cooldown < hunter.TimeBetweenAttacks)
-            return;
-
-        target.ReceiveAttack();
-        cooldown = 0f;
-
-        if (hunter.FindClosestDownBoid() != null)
-        {
-            StateMachine.ChangeState(Hunter.HunterState.Gather);
+            ChangeState(hunter.DefaultState);
             return;
         }
 
-        target = hunter.FindClosestActiveBoid();
-        if (target == null)
-            StateMachine.ChangeState(Hunter.HunterState.Patrol);
+        float distance = PlanarDistance(target.transform.position, hunter.transform.position);
+
+        if (distance <= hunter.MeleeAttackRadius)
+        {
+            Attack(ranged: false);
+            return;
+        }
+
+        if (distance <= hunter.RangeAttackRadius)
+        {
+            Attack(ranged: true);
+            return;
+        }
+
+        hunter.MoveToTarget(PredictPosition(distance));
     }
 
     public override void Exit()
     {
         target = null;
-        cooldown = 0f;
+        hunter.Stop();
     }
 
-    private bool IsValidTarget(Boid boid) => boid != null && !boid.IsDown && hunter.IsInPerception(boid);
+    private void Attack(bool ranged)
+    {
+        hunter.Stop();
+        hunter.PerformAttack(target, ranged); // also restarts the TBA
+        ChangeState(hunter.DefaultState);
+    }
+
+    // Pursuit: aim where the boid will be by the time the Hunter gets there.
+    private Vector3 PredictPosition(float distance)
+    {
+        float prediction = distance / Mathf.Max(hunter.MaxSpeed, 0.01f);
+        return target.transform.position + target.Velocity * prediction;
+    }
 }

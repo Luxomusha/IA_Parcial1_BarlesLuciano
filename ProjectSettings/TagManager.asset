@@ -15,9 +15,9 @@ TagManager:
   - Boid
   - Hunter
   - Bait
-  - 
-  - 
-  - 
+  - Obstacle
+  - SafeZone
+  - Wolf
   - 
   - 
   - 

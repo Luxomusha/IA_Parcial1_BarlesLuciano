@@ -34,6 +34,14 @@ public class FlockArea : MonoBehaviour
         return center + local;
     }
 
+    // XZ check: is the position inside the area (the Hunting ground)?
+    public bool Contains(Vector3 position)
+    {
+        Vector3 local = position - transform.position;
+        Vector3 half = size * 0.5f;
+        return Mathf.Abs(local.x) <= half.x && Mathf.Abs(local.z) <= half.z;
+    }
+
     public Vector3 RandomPoint()
     {
         Vector3 half = size * 0.5f;

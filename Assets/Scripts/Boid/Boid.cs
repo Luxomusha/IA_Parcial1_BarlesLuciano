@@ -337,6 +337,11 @@ public class Boid : Agent
         return new Vector3(direction.x, 0f, direction.y);
     }
 
+    // La consigna (1.12 Feedback) solo pide ver Separation, Alignment/Cohesion
+    // y visión para los Boids. baitDetectionRadius/arriveSlowRadius/interactRadius
+    // son detalle de implementación del bait: con 6+ Boids dibujando los 6 radios
+    // a la vez (en particular el amarillo, de diámetro 20 contra una zona de 30x30)
+    // la escena se vuelve ilegible. Quedan comentados por si los necesitás para debug puntual.
     private void OnDrawGizmos()
     {
         if (!drawGizmos) return;
@@ -350,13 +355,13 @@ public class Boid : Agent
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, evadeRadius);
 
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireSphere(transform.position, baitDetectionRadius);
+        // Gizmos.color = Color.yellow;
+        // Gizmos.DrawWireSphere(transform.position, baitDetectionRadius);
 
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, arriveSlowRadius);
+        // Gizmos.color = Color.blue;
+        // Gizmos.DrawWireSphere(transform.position, arriveSlowRadius);
 
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawWireSphere(transform.position, interactRadius);
+        // Gizmos.color = Color.magenta;
+        // Gizmos.DrawWireSphere(transform.position, interactRadius);
     }
 }

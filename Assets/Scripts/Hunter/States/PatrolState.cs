@@ -1,37 +1,26 @@
 using UnityEngine;
 
-public class PatrolState : State
+// Parcial 1 only: used when the Hunter has no Pathfinder (scene without graph).
+// In Parcial 2 the default state is Search.
+public class PatrolState : HunterStateBase
 {
     private const float WaypointReachedDistance = 0.2f;
 
-    private readonly Hunter hunter;
     private int waypointIndex;
     private int direction = 1;
     private float spawnTimer;
 
-    public PatrolState(StateMachine stateMachine, Hunter hunter) : base(stateMachine)
-    {
-        this.hunter = hunter;
-    }
+    public PatrolState(StateMachine stateMachine, Hunter hunter) : base(stateMachine, hunter) { }
 
     public override void Enter()
     {
+        base.Enter();
         hunter.SetColor(Color.white);
     }
 
     public override void Update()
     {
-        if (hunter.FindClosestActiveBoid() != null)
-        {
-            StateMachine.ChangeState(Hunter.HunterState.Attack);
-            return;
-        }
-
-        if (hunter.FindClosestDownBoid() != null)
-        {
-            StateMachine.ChangeState(Hunter.HunterState.Gather);
-            return;
-        }
+        if (TryGather() || TryAttack()) return;
 
         FollowWaypoints();
 

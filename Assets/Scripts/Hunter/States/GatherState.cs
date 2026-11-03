@@ -1,41 +1,40 @@
 using UnityEngine;
 
-public class GatherState : State
+// Goes to a downed boid and gathers it during GatherDuration.
+// Done: the boid respawns in the Hunting ground and the counter goes up,
+// then Exit if RequiredGathers was reached or back to Search.
+public class GatherState : HunterStateBase
 {
     private const float ReachTolerance = 0.01f;
 
     private static readonly Color MovingColor = Color.blue;
     private static readonly Color GatheringColor = Color.cyan;
 
-    private readonly Hunter hunter;
     private Boid target;
     private float gatherTimer;
 
-    public GatherState(StateMachine stateMachine, Hunter hunter) : base(stateMachine)
-    {
-        this.hunter = hunter;
-    }
+    public GatherState(StateMachine stateMachine, Hunter hunter) : base(stateMachine, hunter) { }
 
     public override void Enter()
     {
+        base.Enter();
         hunter.SetColor(MovingColor);
-        SelectNextTarget();
+        target = hunter.FindClosestDownBoid();
+        gatherTimer = 0f;
     }
 
     public override void Update()
     {
+        // Flee or Dead cancel the gather without counting it (see Exit()).
+        if (TryHigherPriority()) return;
+
         if (target == null || !target.IsDown)
         {
-            SelectNextTarget();
-            if (target == null)
-            {
-                bool boidInSight = hunter.FindClosestActiveBoid() != null;
-                StateMachine.ChangeState(boidInSight ? Hunter.HunterState.Attack : Hunter.HunterState.Patrol);
-                return;
-            }
+            ChangeState(hunter.DefaultState);
+            return;
         }
 
-        float remaining = hunter.MoveTowards(target.transform.position, hunter.MeleeAttackRadius);
+        float remaining = hunter.MoveToTarget(target.transform.position, hunter.MeleeAttackRadius);
         if (remaining > hunter.MeleeAttackRadius + ReachTolerance)
         {
             hunter.SetColor(MovingColor);
@@ -52,12 +51,14 @@ public class GatherState : State
         hunter.SetColor(Color.Lerp(MovingColor, GatheringColor, Mathf.PingPong(gatherTimer * 4f, 1f)));
         hunter.ShowGatherBeam(target.transform.position);
 
-        if (progress >= 1f)
-        {
-            target.Respawn();
-            hunter.HideGatherBeam();
-            SelectNextTarget();
-        }
+        if (progress < 1f) return;
+
+        target.Respawn();
+        target = null;
+        hunter.AddGather();
+
+        if (!TryExit())
+            ChangeState(hunter.DefaultState);
     }
 
     public override void Exit()
@@ -67,12 +68,6 @@ public class GatherState : State
 
         hunter.HideGatherBeam();
         target = null;
-        gatherTimer = 0f;
-    }
-
-    private void SelectNextTarget()
-    {
-        target = hunter.FindClosestDownBoid();
         gatherTimer = 0f;
     }
 }
