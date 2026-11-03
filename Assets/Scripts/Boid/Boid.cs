@@ -3,125 +3,108 @@ using UnityEngine;
 
 public class Boid : Agent
 {
-    [Header("Movimiento")]
+    [Header("Movement")]
     [SerializeField] private float maxSpeed = 5f;
     [SerializeField] private float maxSteering = 10f;
 
-    [Header("Radios de percepción")]
+    [Header("Perception radii")]
     [SerializeField] private float separationRadius = 1.5f;
     [SerializeField] private float neighborRadius = 4f;
 
-    [Header("Pesos")]
+    [Header("Weights")]
     [SerializeField] private float separationWeight = 1.5f;
     [SerializeField] private float alignmentWeight = 1f;
     [SerializeField] private float cohesionWeight = 1f;
 
-    [Header("Wander (para que nunca queden quietos)")]
+    [Header("Wander (keeps the flock moving)")]
     [SerializeField] private float wanderWeight = 0.5f;
     [SerializeField] private float wanderJitter = 2f;
-    private Vector3 wanderDireccion;
 
     [Header("Evade")]
     [SerializeField] private float evadeRadius = 6f;
-    [SerializeField] private string cazadorTag = "Cazador";
-    private Transform cazador;
 
-    [Header("Objeto de interés (cebo)")]
+    [Header("Bait")]
+    [SerializeField] private float baitDetectionRadius = 10f;
     [SerializeField] private float arriveSlowRadius = 2f;
     [SerializeField] private float interactRadius = 0.5f;
-    private bool enganchado = false;
+
+    [Header("Detection")]
+    [SerializeField] private LayerMask boidMask;
+    [SerializeField] private LayerMask hunterMask;
+    [SerializeField] private LayerMask baitMask;
+    [SerializeField] private int maxDetectedColliders = 32;
+
+    [Header("Gather feedback")]
+    [Tooltip("Scale the boid shrinks to while the Hunter is gathering it.")]
+    [SerializeField] private float gatheredMinScale = 0.3f;
 
     [Header("Gizmos")]
-    [SerializeField] private bool mostrarGizmos = true;
+    [SerializeField] private bool drawGizmos = true;
 
     [Header("Audio")]
-    [SerializeField] private AudioClip sonidoDolor;
+    [SerializeField] private AudioClip painSound;
+
     private AudioSource audioSource;
+    private Vector3 wanderDirection;
+    private Vector3 originalScale;
 
-    private static readonly List<Boid> allBoids = new List<Boid>();
-    public static readonly List<Boid> enganchados = new List<Boid>();
-    private bool estaInactivo = false;
-    private static readonly List<Boid> inactivos = new List<Boid>();
+    private Collider[] detectionBuffer;
+    private readonly List<Boid> neighbors = new List<Boid>();
+    private readonly List<Boid> closeNeighbors = new List<Boid>();
+    private readonly List<Boid> overlappingBoids = new List<Boid>();
 
-    private void OnEnable() => allBoids.Add(this);
-    private void OnDisable() => allBoids.Remove(this);
+    // Hooked: caught by a bait and standing still. Down: hit by the Hunter, waiting to be gathered.
+    public bool IsHooked { get; private set; }
+    public bool IsDown { get; private set; }
+    private bool IsFlocking => !IsHooked && !IsDown;
 
-    private void Start()
+    private void Awake()
     {
-        GameObject cazadorObj = GameObject.FindWithTag(cazadorTag);
-        if (cazadorObj != null) cazador = cazadorObj.transform;
-
-        Vector2 dirAleatoria = Random.insideUnitCircle.normalized;
-        wanderDireccion = new Vector3(dirAleatoria.x, 0f, dirAleatoria.y);
-        _velocity = wanderDireccion * maxSpeed * 0.5f;
+        detectionBuffer = new Collider[maxDetectedColliders];
+        originalScale = transform.localScale;
 
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
             audioSource = gameObject.AddComponent<AudioSource>();
     }
 
-    private void OnDrawGizmos()
+    private void Start()
     {
-        if (!mostrarGizmos) return;
-
-        Gizmos.color = Color.cyan;
-        Gizmos.DrawWireSphere(transform.position, separationRadius);
-
-        Gizmos.color = Color.green;
-        Gizmos.DrawWireSphere(transform.position, neighborRadius);
-
-        Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(transform.position, evadeRadius);
-
-        Gizmos.color = Color.blue;
-        Gizmos.DrawWireSphere(transform.position, arriveSlowRadius);
-
-        Gizmos.color = Color.magenta;
-        Gizmos.DrawWireSphere(transform.position, interactRadius);
+        wanderDirection = RandomPlanarDirection();
+        _velocity = wanderDirection * maxSpeed * 0.5f;
     }
 
     private void Update()
     {
-        if (estaInactivo)
+        if (!IsFlocking)
             return;
 
-        if (enganchado)
-            return;
+        DetectNearbyBoids();
 
         Vector3 steering;
-        bool cazadorCerca = cazador != null &&
-            (cazador.position - transform.position).sqrMagnitude <= evadeRadius * evadeRadius;
+        Agent hunter = DetectHunter();
 
-        if (cazadorCerca)
+        if (hunter != null)
         {
-            steering = Evade();
+            steering = Evade(hunter);
         }
-        else if (BuscarObjetoMasCercano() is ObjetoInteres cebo)
+        else if (DetectClosestBait() is Bait bait)
         {
-            float dist = Vector3.Distance(transform.position, cebo.transform.position);
-            if (dist <= interactRadius)
+            float distance = Vector3.Distance(transform.position, bait.transform.position);
+            if (distance <= interactRadius)
             {
-                cebo.Atrapar(this);
+                bait.Consume(this);
                 return;
             }
 
-            List<Boid> closeNeighbors = GetNeighbors(separationRadius);
-            steering = Arrive(cebo.transform.position) + Separation(closeNeighbors) * separationWeight;
+            steering = Arrive(bait.transform.position) + Separation() * separationWeight;
         }
         else
         {
-            List<Boid> neighbors = GetNeighbors(neighborRadius);
-            List<Boid> closeNeighbors = GetNeighbors(separationRadius);
-
-            Vector3 separation = Separation(closeNeighbors);
-            Vector3 alignment = Alignment(neighbors);
-            Vector3 cohesion = Cohesion(neighbors);
-            Vector3 wander = Wander();
-
-            steering = separation * separationWeight
-                     + alignment * alignmentWeight
-                     + cohesion * cohesionWeight
-                     + wander * wanderWeight;
+            steering = Separation() * separationWeight
+                     + Alignment() * alignmentWeight
+                     + Cohesion() * cohesionWeight
+                     + Wander() * wanderWeight;
         }
 
         steering = Vector3.ClampMagnitude(steering, maxSteering * Time.deltaTime);
@@ -132,93 +115,114 @@ public class Boid : Agent
         if (FlockArea.Instance != null)
             transform.position = FlockArea.Instance.Wrap(transform.position);
 
-        ResolverSuperposicion();
+        ResolveOverlap();
 
         if (_velocity.sqrMagnitude > 0.01f)
             transform.forward = _velocity.normalized;
     }
 
-    private void ResolverSuperposicion()
-    {
-        foreach (Boid other in GetAllNearby(separationRadius))
-        {
-            Vector3 diff = transform.position - other.transform.position;
-            diff.y = 0f;
-            float dist = diff.magnitude;
+    #region Detection
 
-            if (dist < separationRadius && dist > 0.0001f)
-                transform.position += diff.normalized * (separationRadius - dist);
+    private int Detect(float radius, LayerMask mask) =>
+        Physics.OverlapSphereNonAlloc(transform.position, radius, detectionBuffer, mask, QueryTriggerInteraction.Collide);
+
+    // Fills the neighbor lists using only the boids whose colliders are inside the perception radius.
+    private void DetectNearbyBoids()
+    {
+        neighbors.Clear();
+        closeNeighbors.Clear();
+        overlappingBoids.Clear();
+
+        float sqrNeighborRadius = neighborRadius * neighborRadius;
+        float sqrSeparationRadius = separationRadius * separationRadius;
+
+        int count = Detect(Mathf.Max(neighborRadius, separationRadius), boidMask);
+        for (int i = 0; i < count; i++)
+        {
+            Boid other = detectionBuffer[i].GetComponentInParent<Boid>();
+            if (other == null || other == this) continue;
+
+            float sqrDistance = (other.transform.position - transform.position).sqrMagnitude;
+
+            if (sqrDistance <= sqrSeparationRadius)
+                overlappingBoids.Add(other);
+
+            if (!other.IsFlocking) continue;
+
+            if (sqrDistance <= sqrNeighborRadius)
+                neighbors.Add(other);
+            if (sqrDistance <= sqrSeparationRadius)
+                closeNeighbors.Add(other);
         }
     }
 
-    public void Engancharse()
+    private Agent DetectHunter()
     {
-        enganchado = true;
-        _velocity = Vector3.zero;
-        enganchados.Add(this);
-    }
-
-    private List<Boid> GetNeighbors(float radius)
-    {
-        List<Boid> result = new List<Boid>();
-        float sqrRadius = radius * radius;
-        foreach (Boid other in allBoids)
+        int count = Detect(evadeRadius, hunterMask);
+        for (int i = 0; i < count; i++)
         {
-            if (other == this) continue;
-            if (other.enganchado || other.estaInactivo) continue;
-            float sqrDist = (other.transform.position - transform.position).sqrMagnitude;
-            if (sqrDist <= sqrRadius)
-                result.Add(other);
+            Hunter hunter = detectionBuffer[i].GetComponentInParent<Hunter>();
+            if (hunter != null)
+                return hunter;
         }
 
-        return result;
+        return null;
     }
 
-    private List<Boid> GetAllNearby(float radius)
+    private Bait DetectClosestBait()
     {
-        List<Boid> result = new List<Boid>();
-        float sqrRadius = radius * radius;
-        foreach (Boid other in allBoids)
+        Bait closest = null;
+        float bestSqrDistance = float.MaxValue;
+
+        int count = Detect(baitDetectionRadius, baitMask);
+        for (int i = 0; i < count; i++)
         {
-            if (other == this) continue;
-            float sqrDist = (other.transform.position - transform.position).sqrMagnitude;
-            if (sqrDist <= sqrRadius)
-                result.Add(other);
+            Bait bait = detectionBuffer[i].GetComponentInParent<Bait>();
+            if (bait == null || !bait.IsAvailable) continue;
+
+            float sqrDistance = (bait.transform.position - transform.position).sqrMagnitude;
+            if (sqrDistance < bestSqrDistance)
+            {
+                bestSqrDistance = sqrDistance;
+                closest = bait;
+            }
         }
 
-        return result;
+        return closest;
     }
 
-    private Vector3 Separation(List<Boid> closeNeighbors)
+    #endregion
+
+    #region Steering
+
+    private Vector3 Separation()
     {
         Vector3 steer = Vector3.zero;
 
         foreach (Boid other in closeNeighbors)
         {
-            Vector3 diff = transform.position - other.transform.position;
-            float dist = diff.magnitude;
-            if (dist > 0.0001f)
-                steer += diff.normalized / dist;
+            Vector3 away = transform.position - other.transform.position;
+            float distance = away.magnitude;
+            if (distance > 0.0001f)
+                steer += away.normalized / distance;
         }
 
         return steer;
     }
 
-    private Vector3 Alignment(List<Boid> neighbors)
+    private Vector3 Alignment()
     {
         if (neighbors.Count == 0)
             return Vector3.zero;
 
-        Vector3 avgVelocity = Vector3.zero;
+        Vector3 averageVelocity = Vector3.zero;
         foreach (Boid other in neighbors)
-            avgVelocity += other.Velocity;
+            averageVelocity += other.Velocity;
 
-        avgVelocity /= neighbors.Count;
-
-        return avgVelocity;
+        return averageVelocity / neighbors.Count;
     }
 
-    private Vector3 Cohesion(List<Boid> neighbors)
+    private Vector3 Cohesion()
     {
         if (neighbors.Count == 0)
             return Vector3.zero;
@@ -232,132 +236,127 @@ public class Boid : Agent
         if (desired.sqrMagnitude < 0.0001f)
             return Vector3.zero;
 
-        desired = desired.normalized * maxSpeed;
-        Vector3 steer = desired - _velocity;
-
-        return steer;
+        return desired.normalized * maxSpeed - _velocity;
     }
 
     private Vector3 Wander()
     {
-        wanderDireccion += new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f)) * wanderJitter * Time.deltaTime;
-        wanderDireccion = wanderDireccion.normalized;
+        wanderDirection += new Vector3(Random.Range(-1f, 1f), 0f, Random.Range(-1f, 1f)) * wanderJitter * Time.deltaTime;
+        wanderDirection = wanderDirection.normalized;
 
-        Vector3 desired = wanderDireccion * maxSpeed;
-        return desired - _velocity;
+        return wanderDirection * maxSpeed - _velocity;
     }
 
-    private Vector3 Evade()
+    // Flees from where the Hunter is going to be, not from where it is now.
+    private Vector3 Evade(Agent hunter)
     {
-        Vector3 desired = transform.position - cazador.position;
+        Vector3 toHunter = hunter.transform.position - transform.position;
+        float prediction = toHunter.magnitude / (maxSpeed + hunter.Velocity.magnitude);
+        Vector3 futurePosition = hunter.transform.position + hunter.Velocity * prediction;
+
+        Vector3 desired = transform.position - futurePosition;
+        desired.y = 0f;
         if (desired.sqrMagnitude < 0.0001f)
             return Vector3.zero;
 
-        desired = desired.normalized * maxSpeed;
-        Vector3 steer = desired - _velocity;
-
-        return steer;
-    }
-
-    private ObjetoInteres BuscarObjetoMasCercano()
-    {
-        ObjetoInteres[] objetos = FindObjectsByType<ObjetoInteres>(FindObjectsSortMode.None);
-        if (objetos.Length == 0)
-            return null;
-
-        ObjetoInteres masCercano = null;
-        float mejorSqrDist = float.MaxValue;
-
-        foreach (ObjetoInteres obj in objetos)
-        {
-            float sqrDist = (obj.transform.position - transform.position).sqrMagnitude;
-            if (sqrDist < mejorSqrDist)
-            {
-                mejorSqrDist = sqrDist;
-                masCercano = obj;
-            }
-        }
-
-        return masCercano;
+        return desired.normalized * maxSpeed - _velocity;
     }
 
     private Vector3 Arrive(Vector3 target)
     {
         Vector3 toTarget = target - transform.position;
-        float dist = toTarget.magnitude;
-        if (dist < 0.0001f)
+        float distance = toTarget.magnitude;
+        if (distance < 0.0001f)
             return Vector3.zero;
 
-        float speed = dist < arriveSlowRadius ? maxSpeed * (dist / arriveSlowRadius) : maxSpeed;
-        Vector3 desired = toTarget.normalized * speed;
-
-        return desired - _velocity;
+        float speed = distance < arriveSlowRadius ? maxSpeed * (distance / arriveSlowRadius) : maxSpeed;
+        return toTarget.normalized * speed - _velocity;
     }
 
-    public void RecibirAtaque()
+    private void ResolveOverlap()
     {
-        Debug.Log($"{name}: entró a RecibirAtaque()");
-        if (estaInactivo) return;
+        foreach (Boid other in overlappingBoids)
+        {
+            Vector3 away = transform.position - other.transform.position;
+            away.y = 0f;
+            float distance = away.magnitude;
 
-        enganchado = false;
-        enganchados.Remove(this);
+            if (distance < separationRadius && distance > 0.0001f)
+                transform.position += away.normalized * (separationRadius - distance);
+        }
+    }
 
-        estaInactivo = true;
-        inactivos.Add(this);
+    #endregion
 
-        if (sonidoDolor != null && audioSource != null)
-            audioSource.PlayOneShot(sonidoDolor);
+    #region Hunter interaction
+
+    public void Hook()
+    {
+        IsHooked = true;
+        _velocity = Vector3.zero;
+    }
+
+    public void ReceiveAttack()
+    {
+        if (IsDown) return;
+
+        IsHooked = false;
+        IsDown = true;
+        _velocity = Vector3.zero;
+
+        if (painSound != null)
+            audioSource.PlayOneShot(painSound);
 
         transform.Rotate(0f, 90f, 90f, Space.Self);
     }
 
-    public void Recolectar()
+    // Visual feedback while the Hunter is gathering this boid (progress goes from 0 to 1).
+    public void SetGatherProgress(float progress)
     {
-        inactivos.Remove(this);
-        estaInactivo = false;
+        transform.localScale = originalScale * Mathf.Lerp(1f, gatheredMinScale, progress);
+    }
 
+    public void Respawn()
+    {
+        IsDown = false;
+        IsHooked = false;
+
+        transform.localScale = originalScale;
         transform.rotation = Quaternion.identity;
+        _velocity = RandomPlanarDirection() * maxSpeed * 0.5f;
 
-        Vector2 dirAleatoria = Random.insideUnitCircle.normalized;
-        _velocity = new Vector3(dirAleatoria.x, 0f, dirAleatoria.y) * maxSpeed * 0.5f;
-
-        transform.position = FlockArea.Instance.PuntoAleatorio();
+        if (FlockArea.Instance != null)
+            transform.position = FlockArea.Instance.RandomPoint();
     }
-    public static Boid BuscarObjetivoParaCazador(Vector3 origen, float radio)
+
+    #endregion
+
+    private static Vector3 RandomPlanarDirection()
     {
-        Boid masCercano = null;
-        float mejorSqrDist = float.MaxValue;
-
-        foreach (Boid b in allBoids)
-        {
-            if (b.estaInactivo) continue;
-            float sqrDist = (b.transform.position - origen).sqrMagnitude;
-            if (sqrDist <= radio * radio && sqrDist < mejorSqrDist)
-            {
-                mejorSqrDist = sqrDist;
-                masCercano = b;
-            }
-        }
-
-        return masCercano;
+        Vector2 direction = Random.insideUnitCircle.normalized;
+        return new Vector3(direction.x, 0f, direction.y);
     }
 
-    public static Boid BuscarInactivoParaCazador(Vector3 origen, float radio)
+    private void OnDrawGizmos()
     {
-        Boid masCercano = null;
-        float mejorSqrDist = float.MaxValue;
+        if (!drawGizmos) return;
 
-        foreach (Boid b in inactivos)
-        {
-            float sqrDist = (b.transform.position - origen).sqrMagnitude;
-            if (sqrDist <= radio * radio && sqrDist < mejorSqrDist)
-            {
-                mejorSqrDist = sqrDist;
-                masCercano = b;
-            }
-        }
+        Gizmos.color = Color.cyan;
+        Gizmos.DrawWireSphere(transform.position, separationRadius);
 
-        return masCercano;
+        Gizmos.color = Color.green;
+        Gizmos.DrawWireSphere(transform.position, neighborRadius);
+
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, evadeRadius);
+
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, baitDetectionRadius);
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawWireSphere(transform.position, arriveSlowRadius);
+
+        Gizmos.color = Color.magenta;
+        Gizmos.DrawWireSphere(transform.position, interactRadius);
     }
-
 }

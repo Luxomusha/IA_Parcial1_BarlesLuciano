@@ -4,8 +4,9 @@ public class FlockArea : MonoBehaviour
 {
     public static FlockArea Instance { get; private set; }
 
-    [Header("Tamaño de la zona (cercado)")]
+    [Header("Area size")]
     [SerializeField] private Vector3 size = new Vector3(30f, 15f, 30f);
+    [SerializeField] private float groundHeight = 0f;
 
     private void OnEnable() => Instance = this;
 
@@ -33,19 +34,18 @@ public class FlockArea : MonoBehaviour
         return center + local;
     }
 
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.yellow;
-        Gizmos.DrawWireCube(transform.position, size);
-    }
-    [SerializeField] private float alturaSuelo = 0f;
-
-    public Vector3 PuntoAleatorio()
+    public Vector3 RandomPoint()
     {
         Vector3 half = size * 0.5f;
         return new Vector3(
             transform.position.x + Random.Range(-half.x, half.x),
-            alturaSuelo,
+            groundHeight,
             transform.position.z + Random.Range(-half.z, half.z));
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireCube(transform.position, size);
     }
 }

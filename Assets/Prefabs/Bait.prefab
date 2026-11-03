@@ -10,8 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 3813819038486760813}
   - component: {fileID: 295463858751610706}
-  m_Layer: 0
-  m_Name: Cebo
+  - component: {fileID: 1346576267893140593}
+  m_Layer: 8
+  m_Name: Bait
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -46,9 +47,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c2fb3e728f7733046985432c19ceddc6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::ObjetoInteres
-  duracion: 10
-  mostrarGizmos: 1
-  radioGizmo: 0.5
+  lifetime: 10
+  drawGizmos: 1
+  gizmoRadius: 0.5
+--- !u!135 &1346576267893140593
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4645701581674775442}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.6
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &8411336941220545793
 GameObject:
   m_ObjectHideFlags: 0
@@ -58,7 +80,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7412329526038582363}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -131,6 +153,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 10affcc69d712b540a19d808cc92eb91, type: 3}
       propertyPath: m_Name
       value: whole-ham
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 10affcc69d712b540a19d808cc92eb91, type: 3}
+      propertyPath: m_Layer
+      value: 8
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
