@@ -47,6 +47,8 @@ public class Boid : Agent
     private AudioSource audioSource;
     private Vector3 wanderDirection;
     private Vector3 originalScale;
+    // Height the boid was placed at, kept on respawn (FlockArea.RandomPoint returns the ground height).
+    private float spawnHeight;
 
     private Collider[] detectionBuffer;
     private readonly List<Boid> neighbors = new List<Boid>();
@@ -62,6 +64,7 @@ public class Boid : Agent
     {
         detectionBuffer = new Collider[maxDetectedColliders];
         originalScale = transform.localScale;
+        spawnHeight = transform.position.y;
 
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
@@ -326,7 +329,11 @@ public class Boid : Agent
         _velocity = RandomPlanarDirection() * maxSpeed * 0.5f;
 
         if (FlockArea.Instance != null)
-            transform.position = FlockArea.Instance.RandomPoint();
+        {
+            Vector3 point = FlockArea.Instance.RandomPoint();
+            point.y = spawnHeight;
+            transform.position = point;
+        }
     }
 
     #endregion

@@ -320,10 +320,14 @@ public class Hunter : Agent
         return !Physics.CapsuleCast(bottom, top, radius, toTarget / distance, distance, obstacleMask, QueryTriggerInteraction.Ignore);
     }
 
-    public bool CanSee(Boid boid) =>
-        boid != null
-        && (boid.transform.position - transform.position).sqrMagnitude <= visionRadius * visionRadius
-        && HasLineOfSight(boid.transform.position);
+    // Single vision test used by every check (boids and wolves): planar distance from the
+    // Hunter to the target's center + line of sight. The OverlapSphere queries below only
+    // collect candidates; they also return colliders whose edge barely touches the radius,
+    // so they must not decide on their own (that made Search and Attack disagree and flicker).
+    public bool IsInVision(Vector3 point) =>
+        PlanarDistance(point) <= visionRadius && HasLineOfSight(point);
+
+    public bool CanSee(Boid boid) => boid != null && IsInVision(boid.transform.position);
 
     public Boid FindClosestActiveBoid() => FindClosestBoid(wantDown: false);
     public Boid FindClosestDownBoid() => FindClosestBoid(wantDown: true);
@@ -339,7 +343,7 @@ public class Hunter : Agent
         {
             Boid boid = detectionBuffer[i].GetComponentInParent<Boid>();
             if (boid == null || boid.IsDown != wantDown) continue;
-            if (!HasLineOfSight(boid.transform.position)) continue;
+            if (!CanSee(boid)) continue;
 
             float sqrDistance = (boid.transform.position - transform.position).sqrMagnitude;
             if (sqrDistance < bestSqrDistance)
@@ -362,7 +366,7 @@ public class Hunter : Agent
         for (int i = 0; i < count; i++)
         {
             Transform wolf = detectionBuffer[i].transform;
-            if (!HasLineOfSight(wolf.position)) continue;
+            if (!IsInVision(wolf.position)) continue;
 
             float sqrDistance = (wolf.position - transform.position).sqrMagnitude;
             if (sqrDistance < bestSqrDistance)
