@@ -34,7 +34,6 @@ public class FlockArea : MonoBehaviour
         return center + local;
     }
 
-    // XZ check: is the position inside the area (the Hunting ground)?
     public bool Contains(Vector3 position)
     {
         Vector3 local = position - transform.position;

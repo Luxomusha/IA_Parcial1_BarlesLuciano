@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Debug helper: asks the Pathfinder for a path between two Transforms and
-// draws it with Gizmos. Used to test FindPath before plugging it into agents.
 public class PathTester : MonoBehaviour
 {
     [SerializeField] private Pathfinder pathfinder;

@@ -3,8 +3,6 @@ using UnityEngine;
 
 public class GridGraph : MonoBehaviour
 {
-    // 4-direction offsets (row, column). No diagonals, so a path can't cut
-    // through a wall corner when two blocked cells touch diagonally.
     private static readonly (int dRow, int dColumn)[] Directions =
     {
         (1, 0), (-1, 0), (0, 1), (0, -1)
@@ -64,8 +62,6 @@ public class GridGraph : MonoBehaviour
         return grid[row, column];
     }
 
-    // excludeSafeZones = true for the wolves (they can't walk there),
-    // false for the Hunter (it can).
     public List<GridNode> GetNeighbors(GridNode current, bool excludeSafeZones = false)
     {
         List<GridNode> neighbors = new();

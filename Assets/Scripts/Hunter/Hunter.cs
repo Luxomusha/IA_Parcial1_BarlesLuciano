@@ -4,7 +4,6 @@ using UnityEngine.Serialization;
 
 public class Hunter : Agent
 {
-    // Patrol is only used in the Parcial 1 scene (no graph assigned).
     public enum HunterState { Patrol, Search, Attack, Gather, Flee, Exit, Dead }
 
     private const float PathWaypointTolerance = 0.05f;
@@ -150,7 +149,6 @@ public class Hunter : Agent
         UpdateAttackBeam();
     }
 
-    // Called by the states on Enter, so CurrentState always mirrors the FSM.
     public void NotifyStateEntered(HunterState state) => CurrentState = state;
 
     #region Movement
@@ -164,7 +162,6 @@ public class Hunter : Agent
         }
     }
 
-    // Moves on the XZ plane towards target, stopping at stopDistance. Returns the remaining distance.
     public float MoveTowards(Vector3 target, float stopDistance = 0f)
     {
         Vector3 toTarget = target - transform.position;
@@ -184,7 +181,6 @@ public class Hunter : Agent
         {
             GetCapsule(out Vector3 bottom, out Vector3 top, out float radius);
 
-            // Sweeping the whole step also prevents tunnelling on slow frames.
             if (Physics.CheckCapsule(bottom, top, radius, obstacleMask, QueryTriggerInteraction.Ignore))
                 step = 0f;
             else if (Physics.CapsuleCast(bottom, top, radius, direction, out RaycastHit hit,
@@ -201,8 +197,6 @@ public class Hunter : Agent
 
     public void Stop() => SetVelocity(Vector3.zero);
 
-    // Final stretch towards a target: straight steering when the way is clear,
-    // A* otherwise. Returns the remaining planar distance to the target.
     public float MoveToTarget(Vector3 target, float stopDistance = 0f)
     {
         if (!HasNavigation || HasClearPath(target))
@@ -215,7 +209,6 @@ public class Hunter : Agent
         return PlanarDistance(target);
     }
 
-    // Walks the A* path to goal. Returns true once the end of the path is reached.
     public bool FollowPathTo(Vector3 goal)
     {
         if (!HasNavigation)
@@ -242,7 +235,6 @@ public class Hunter : Agent
         return pathIndex >= path.Count;
     }
 
-    // True when the last request found no path (blocked or unreachable goal).
     public bool PathFailed => hasPathRequest && path.Count == 0;
 
     public void ClearPath()
@@ -261,8 +253,6 @@ public class Hunter : Agent
         pathGoal = goal;
         hasPathRequest = true;
 
-        // Skip our own node when the next one can be reached directly,
-        // so the Hunter doesn't step back to the center of its cell.
         pathIndex = path.Count > 1 && HasClearPath(path[1]) ? 1 : 0;
 
         if (path.Count == 0 && !warnedNoPath)
@@ -298,7 +288,6 @@ public class Hunter : Agent
 
     private Vector3 EyePosition => movementCollider != null ? movementCollider.bounds.center : transform.position + Vector3.up * 0.5f;
 
-    // Line of sight: no wall between the Hunter and the point.
     public bool HasLineOfSight(Vector3 point)
     {
         Vector3 from = EyePosition;
@@ -306,7 +295,6 @@ public class Hunter : Agent
         return !Physics.Linecast(from, to, obstacleMask, QueryTriggerInteraction.Ignore);
     }
 
-    // Like line of sight but as wide as the capsule: the Hunter can walk straight there.
     public bool HasClearPath(Vector3 point)
     {
         if (movementCollider == null) return HasLineOfSight(point);
@@ -320,10 +308,6 @@ public class Hunter : Agent
         return !Physics.CapsuleCast(bottom, top, radius, toTarget / distance, distance, obstacleMask, QueryTriggerInteraction.Ignore);
     }
 
-    // Single vision test used by every check (boids and wolves): planar distance from the
-    // Hunter to the target's center + line of sight. The OverlapSphere queries below only
-    // collect candidates; they also return colliders whose edge barely touches the radius,
-    // so they must not decide on their own (that made Search and Attack disagree and flicker).
     public bool IsInVision(Vector3 point) =>
         PlanarDistance(point) <= visionRadius && HasLineOfSight(point);
 
@@ -332,7 +316,6 @@ public class Hunter : Agent
     public Boid FindClosestActiveBoid() => FindClosestBoid(wantDown: false);
     public Boid FindClosestDownBoid() => FindClosestBoid(wantDown: true);
 
-    // Only boids inside the vision radius and not hidden behind a wall can be found.
     private Boid FindClosestBoid(bool wantDown)
     {
         Boid closest = null;
@@ -356,7 +339,6 @@ public class Hunter : Agent
         return closest;
     }
 
-    // Wolf perception: max distance + line of sight (no view angle needed).
     public Transform DetectClosestWolf()
     {
         DetectedWolf = null;
@@ -387,7 +369,6 @@ public class Hunter : Agent
     #region Zones
 
     public Vector3 HuntingGroundCenter => huntingGround != null ? huntingGround.transform.position : transform.position;
-    // Random point of the Hunting ground that is not on a wall (same check the graph uses).
     public Vector3 RandomHuntingGroundPoint()
     {
         if (huntingGround == null) return transform.position;
@@ -401,7 +382,6 @@ public class Hunter : Agent
 
     public void AddGather() => GatherCount++;
 
-    // Called by the wolves when they reach the Hunter. The FSM reacts on its next update.
     [ContextMenu("Debug/Catch (test Dead)")]
     public void Catch()
     {
@@ -425,7 +405,6 @@ public class Hunter : Agent
         }
     }
 
-    // Back to the Start zone with the gather counter reset (after Dead or Exit).
     public void RespawnAtStart()
     {
         IsCaught = false;
@@ -525,7 +504,6 @@ public class Hunter : Agent
 
         if (!Application.isPlaying) return;
 
-        // Current A* path.
         if (path != null && path.Count > 0)
         {
             Gizmos.color = Color.white;

@@ -1,5 +1,3 @@
-// Identifies a grid cell. Neighbor directions are computed in GridGraph
-// with an offsets array instead of Up/Down/Left/Right properties.
 public readonly struct Coordinates
 {
     public readonly int Row;

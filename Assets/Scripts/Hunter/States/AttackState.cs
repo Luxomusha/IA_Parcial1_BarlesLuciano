@@ -1,8 +1,5 @@
 using UnityEngine;
 
-// Entered only with the TBA finished and a live boid in sight.
-// Melee inside MeleeAttackRadius, ranged inside RangeAttackRadius,
-// otherwise Pursuit (predicting the boid's future position).
 public class AttackState : HunterStateBase
 {
     private Boid target;
@@ -20,7 +17,6 @@ public class AttackState : HunterStateBase
     {
         if (TryHigherPriority()) return;
 
-        // Target lost (out of sight or already down): back to Search, TBA untouched.
         if (target == null || target.IsDown || !hunter.CanSee(target))
         {
             ChangeState(hunter.DefaultState);
@@ -53,11 +49,10 @@ public class AttackState : HunterStateBase
     private void Attack(bool ranged)
     {
         hunter.Stop();
-        hunter.PerformAttack(target, ranged); // also restarts the TBA
+        hunter.PerformAttack(target, ranged);
         ChangeState(hunter.DefaultState);
     }
 
-    // Pursuit: aim where the boid will be by the time the Hunter gets there.
     private Vector3 PredictPosition(float distance)
     {
         float prediction = distance / Mathf.Max(hunter.MaxSpeed, 0.01f);

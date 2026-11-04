@@ -1,7 +1,5 @@
 using UnityEngine;
 
-// Bait spawned by the Hunter. Boids only notice it when its collider (Bait layer)
-// enters their detection radius.
 [RequireComponent(typeof(Collider))]
 public class Bait : MonoBehaviour
 {

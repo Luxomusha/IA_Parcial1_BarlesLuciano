@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// Wolf agent: patrols waypoints, detects the Hunter with a FOV/LOS check, howls to
-// alert the pack, chases the Hunter and catches it. Uses the same graph and A* as
-// the Hunter, never walking on Safe zone nodes.
 public class Wolf : Agent
 {
     public enum WolfState { Patrol, Chase, Investigate, Search }
@@ -13,7 +10,6 @@ public class Wolf : Agent
     private const float RepathDistance = 0.75f;
     private const float ArriveDistance = 0.3f;
 
-    // Every wolf in the scene, used to deliver the howl to the rest of the pack.
     private static readonly List<Wolf> pack = new List<Wolf>();
 
     [Header("References")]
@@ -94,7 +90,6 @@ public class Wolf : Agent
     private bool hasPendingAlert;
     private Vector3 pendingAlertPosition;
 
-    // Feedback timers (gizmos and labels).
     private float howlFeedbackTimer;
     private float alertFeedbackTimer;
     private Wolf lastAlertSender;
@@ -109,7 +104,6 @@ public class Wolf : Agent
 
     public bool IsUsingPathfinding => hasPathRequest && path.Count > 0 && pathIndex < path.Count;
 
-    // Feedback for the HUD: true for a moment after howling / after receiving a howl.
     public bool IsHowling => howlFeedbackTimer > 0f;
     public bool JustReceivedAlert => alertFeedbackTimer > 0f;
     public Wolf LastAlertSender => lastAlertSender;
@@ -168,7 +162,6 @@ public class Wolf : Agent
 
     public void NotifyStateEntered(WolfState state) => CurrentState = state;
 
-    // The brief requires the wolves to be slower than the Hunter in every state.
     private void ClampSpeedsBelowHunter()
     {
         if (hunter == null) return;
@@ -191,8 +184,6 @@ public class Wolf : Agent
     public bool IsHunterAvailable =>
         hunter != null && hunter.isActiveAndEnabled && !hunter.IsDead && !hunter.IsInSafeZone;
 
-    // FOV / LOS: max distance + view angle + no wall in between.
-    // The Hunter can't be seen while it is inside a Safe zone.
     public bool CanSeeHunter()
     {
         if (!IsHunterAvailable) return false;
@@ -212,7 +203,6 @@ public class Wolf : Agent
         return !Physics.Linecast(from, to, obstacleMask, QueryTriggerInteraction.Ignore);
     }
 
-    // Like line of sight but as wide as the wolf: it can walk straight there.
     public bool HasClearPath(Vector3 point)
     {
         Vector3 toTarget = point - transform.position;
@@ -223,8 +213,6 @@ public class Wolf : Agent
         return !Physics.SphereCast(EyePosition, bodyRadius, toTarget / distance, out _, distance, obstacleMask, QueryTriggerInteraction.Ignore);
     }
 
-    // Called when the wolf starts a chase: logs why it saw the Hunter so a wrong
-    // detection (e.g. through a wall) can be traced.
     public void ReportDetection()
     {
         Vector3 toHunter = hunter.transform.position - transform.position;
@@ -265,7 +253,6 @@ public class Wolf : Agent
         HasLastKnownPosition = true;
     }
 
-    // Lose the target: drop the last known position and any pending alert.
     public void ForgetTarget()
     {
         HasLastKnownPosition = false;
@@ -276,8 +263,6 @@ public class Wolf : Agent
 
     #region Howl
 
-    // Called when this wolf detects the Hunter. Sends the current position of the
-    // Hunter to the rest of the pack (a snapshot, not a live position).
     public void Howl()
     {
         if (Time.time - lastHowlTime < howlCooldown) return;
@@ -296,7 +281,6 @@ public class Wolf : Agent
         }
     }
 
-    // The alert is only stored here: the wolf's own FSM decides what to do with it.
     private void ReceiveAlert(Vector3 position, Wolf sender)
     {
         hasPendingAlert = true;
@@ -304,7 +288,6 @@ public class Wolf : Agent
         lastAlertSender = sender;
         alertFeedbackTimer = 1f;
 
-        // Don't cut our own howl with the growl.
         if (audioSource == null || !audioSource.isPlaying)
             PlaySound(alertClip, alertVolume);
     }
@@ -321,7 +304,6 @@ public class Wolf : Agent
         soundTimer = maxSoundDuration;
     }
 
-    // Cuts long clips (e.g. a 30 s growl) after maxSoundDuration.
     private void UpdateSound()
     {
         if (audioSource == null || !audioSource.isPlaying || maxSoundDuration <= 0f) return;
@@ -331,8 +313,6 @@ public class Wolf : Agent
             audioSource.Stop();
     }
 
-    // Debug: fake a howl that reports debugTarget's position, so the wolf goes there
-    // through its normal FSM (Investigate with A*, then Search, then back to Patrol).
     [ContextMenu("Debug/Go to debug target")]
     private void DebugGoToTarget()
     {
@@ -386,8 +366,6 @@ public class Wolf : Agent
             r.material.color = color;
     }
 
-    // Direct steering when the way is clear, A* (without Safe zone nodes) otherwise.
-    // Returns the remaining planar distance to the target.
     public float MoveToTarget(Vector3 target, float speed)
     {
         if (HasClearPath(target))
@@ -400,7 +378,6 @@ public class Wolf : Agent
         return PlanarDistance(target);
     }
 
-    // Walks the A* path to goal. Returns true once the end of the path is reached.
     public bool FollowPathTo(Vector3 goal, float speed)
     {
         if (pathfinder == null) return MoveTowards(goal, speed) <= PathWaypointTolerance;
@@ -435,9 +412,6 @@ public class Wolf : Agent
         hasPathRequest = false;
     }
 
-    // True when there is an A* path (wolves exclude Safe zones) from here to the point.
-    // Points hugging a wall are rejected (same 0.4 clearance the graph uses), so the
-    // wolf's eye can never end up touching a wall and see past it.
     public bool IsReachable(Vector3 point) =>
         pathfinder != null
         && !Physics.CheckSphere(new Vector3(point.x, EyePosition.y, point.z), 0.4f, obstacleMask, QueryTriggerInteraction.Ignore)
@@ -449,7 +423,6 @@ public class Wolf : Agent
         pathGoal = goal;
         hasPathRequest = true;
 
-        // Skip our own node when the next one can be reached directly.
         pathIndex = path.Count > 1 && HasClearPath(path[1]) ? 1 : 0;
     }
 
@@ -468,7 +441,6 @@ public class Wolf : Agent
         Vector3 direction = toTarget / distance;
         float step = Mathf.Min(speed * Time.deltaTime, distance);
 
-        // Never step on a Safe zone, not even while chasing in a straight line.
         Vector3 next = transform.position + direction * step;
         if (Physics.CheckSphere(next, bodyRadius, safeZoneMask, QueryTriggerInteraction.Collide))
             step = 0f;
@@ -524,7 +496,6 @@ public class Wolf : Agent
 
         Vector3 eye = EyePosition;
 
-        // Field of view: radius + the two edges of the view cone.
         Color fovColor = Application.isPlaying && CurrentState == WolfState.Chase ? Color.red : new Color(1f, 0.6f, 0f);
         Gizmos.color = fovColor;
         Vector3 left = Quaternion.Euler(0f, -viewAngle * 0.5f, 0f) * transform.forward;
@@ -545,7 +516,6 @@ public class Wolf : Agent
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, captureRadius);
 
-        // Patrol route.
         if (HasWaypoints)
         {
             Gizmos.color = new Color(1f, 0.6f, 0f, 0.6f);
@@ -566,7 +536,6 @@ public class Wolf : Agent
 
         if (!Application.isPlaying) return;
 
-        // A* path currently followed.
         if (IsUsingPathfinding)
         {
             Gizmos.color = Color.cyan;
@@ -575,14 +544,12 @@ public class Wolf : Agent
             Gizmos.DrawLine(transform.position + Vector3.up * 0.2f, path[pathIndex] + Vector3.up * 0.2f);
         }
 
-        // Detection ray: drawn only while the wolf really sees the Hunter.
         if (CurrentState == WolfState.Chase && hunter != null && CanSeeHunter())
         {
             Gizmos.color = Color.green;
             Gizmos.DrawLine(eye, HunterEyePosition);
         }
 
-        // Last known position of the Hunter used by this wolf.
         if (HasLastKnownPosition)
         {
             Gizmos.color = Color.magenta;
@@ -590,14 +557,12 @@ public class Wolf : Agent
             Gizmos.DrawLine(eye, LastKnownPosition);
         }
 
-        // Howl: expanding ring.
         if (howlFeedbackTimer > 0f)
         {
             Gizmos.color = Color.red;
             Gizmos.DrawWireSphere(transform.position, (1f - howlFeedbackTimer) * 6f + 0.5f);
         }
 
-        // Alert received: line from the wolf that howled.
         if (alertFeedbackTimer > 0f && lastAlertSender != null)
         {
             Gizmos.color = Color.yellow;

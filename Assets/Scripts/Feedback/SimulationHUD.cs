@@ -1,10 +1,5 @@
 using UnityEngine;
 
-// In-game feedback (works in the Game view and in builds, no Gizmos needed):
-// - top-left panel with the Hunter state, gathers, detected wolf and chosen Safe zone,
-//   and every wolf with its state, A* usage and howl / alert events;
-// - floating labels over the Hunter and the wolves;
-// - a marker on the last known position of the Hunter used by each wolf.
 public class SimulationHUD : MonoBehaviour
 {
     [SerializeField] private Hunter hunter;
@@ -88,14 +83,12 @@ public class SimulationHUD : MonoBehaviour
     private void DrawWorldLabel(Camera cam, Vector3 worldPosition, string text, Color color)
     {
         Vector3 screen = cam.WorldToScreenPoint(worldPosition);
-        if (screen.z <= 0f) return; // behind the camera
+        if (screen.z <= 0f) return;
 
         GUIContent content = new GUIContent(text);
         Vector2 size = labelStyle.CalcSize(content);
-        // GUI coordinates start at the top-left, screen coordinates at the bottom-left.
         Rect rect = new Rect(screen.x - size.x * 0.5f, Screen.height - screen.y - size.y, size.x, size.y);
 
-        // Cheap outline so the text reads on any floor color.
         labelStyle.normal.textColor = Color.black;
         GUI.Label(new Rect(rect.x + 1f, rect.y + 1f, rect.width, rect.height), content, labelStyle);
         labelStyle.normal.textColor = color;

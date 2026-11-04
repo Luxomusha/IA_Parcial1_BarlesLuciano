@@ -1,7 +1,5 @@
 using UnityEngine;
 
-// Walks the waypoints. Goes straight to the next one when it is in line of sight,
-// otherwise calculates the path with A*.
 public class WolfPatrolState : WolfStateBase
 {
     private static readonly Color PatrolColor = new Color(0.55f, 0.55f, 0.6f);

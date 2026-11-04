@@ -1,7 +1,5 @@
 using UnityEngine;
 
-// Caught by a wolf: hidden and inactive during RespawnTime, then back to the
-// Start zone with the gather counter reset.
 public class DeadState : HunterStateBase
 {
     private float timer;

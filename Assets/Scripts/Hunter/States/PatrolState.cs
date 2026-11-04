@@ -1,7 +1,5 @@
 using UnityEngine;
 
-// Parcial 1 only: used when the Hunter has no Pathfinder (scene without graph).
-// In Parcial 2 the default state is Search.
 public class PatrolState : HunterStateBase
 {
     private const float WaypointReachedDistance = 0.2f;

@@ -2,7 +2,6 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-// Presentation only: this component never commands or changes an agent's FSM.
 public class SimulationHUDView : MonoBehaviour
 {
     [Header("Simulation")]
@@ -56,8 +55,6 @@ public class SimulationHUDView : MonoBehaviour
     private float _scale = 1f;
     private Color _emptySegment = new Color(0.2f, 0.25f, 0.3f);
 
-    // Compact layout: the MANADA block (heading, counter, list) is hidden and the
-    // buttons move up to where the block started, shrinking the panel.
     private readonly List<GameObject> _packSection = new List<GameObject>();
     private float _expandedPanelHeight;
     private float _expandedButtonsY;
@@ -72,7 +69,6 @@ public class SimulationHUDView : MonoBehaviour
     public bool LegendVisible => _legend;
     public int DisplayedWolfCount => _active.Count;
 
-    // All component lookup occurs once, when a view is constructed or reused.
     private sealed class Item
     {
         public readonly RectTransform Root;
@@ -228,9 +224,6 @@ public class SimulationHUDView : MonoBehaviour
         SetupScaler();
     }
 
-    // Takes the reference resolution from the CanvasScaler and switches it to Constant
-    // Pixel Size, so AdaptLayout can set the final scale factor itself (screen scale,
-    // but never below Minimum Pixel Scale).
     private void SetupScaler()
     {
         _scaler = hudCanvas.GetComponentInParent<UnityEngine.UI.CanvasScaler>();
@@ -270,9 +263,6 @@ public class SimulationHUDView : MonoBehaviour
         SetY((RectTransform)legendButton.transform, buttonsY);
         SetY((RectTransform)debugButton.transform, buttonsY);
 
-        // The rows are anchored to the top, so changing the height only trims the bottom.
-        // Y values are negative (measured down from the top), so the hidden block
-        // is (compactButtonsY - expandedButtonsY) units tall: 428 - 178 = 250.
         float height = visible ? _expandedPanelHeight : _expandedPanelHeight - (_compactButtonsY - _expandedButtonsY);
         panel.sizeDelta = new Vector2(panel.sizeDelta.x, height);
     }
@@ -442,9 +432,6 @@ public class SimulationHUDView : MonoBehaviour
         }
     }
 
-    // The minimum readable size is applied through the CanvasScaler, not through
-    // localScale: uGUI rasterizes text at (font size x canvas scale factor), so a
-    // localScale > 1 just stretches already-rasterized glyphs and makes them blurry.
     private void AdaptLayout()
     {
         float canvasScale = Mathf.Max(0.01f, Mathf.Max(ScreenScale(), minimumPixelScale));
@@ -453,16 +440,13 @@ public class SimulationHUDView : MonoBehaviour
 
         _scale = 1f;
         legend.localScale = debugPanel.localScale = Vector3.one;
-        // Keep Panel Scale at 1 for the sharpest text; below 1 the panel is shrunk as an image.
         panel.localScale = Vector3.one * panelScale;
-        // Insets expressed in screen pixels remain constant across aspect ratios.
         panel.anchoredPosition = new Vector2(16f / canvasScale, -16f / canvasScale);
         legend.anchoredPosition = new Vector2(-16f / canvasScale, -16f / canvasScale);
         float debugY = (16f + panel.sizeDelta.y * panelScale * canvasScale + 12f) / canvasScale;
         debugPanel.anchoredPosition = new Vector2(16f / canvasScale, -debugY);
     }
 
-    // Same formula as CanvasScaler "Scale With Screen Size" (Match Width Or Height).
     private float ScreenScale()
     {
         float widthScale = Mathf.Log(Screen.width / _referenceResolution.x, 2f);

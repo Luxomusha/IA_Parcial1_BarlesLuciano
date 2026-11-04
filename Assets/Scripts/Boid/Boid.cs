@@ -47,7 +47,6 @@ public class Boid : Agent
     private AudioSource audioSource;
     private Vector3 wanderDirection;
     private Vector3 originalScale;
-    // Height the boid was placed at, kept on respawn (FlockArea.RandomPoint returns the ground height).
     private float spawnHeight;
 
     private Collider[] detectionBuffer;
@@ -55,7 +54,6 @@ public class Boid : Agent
     private readonly List<Boid> closeNeighbors = new List<Boid>();
     private readonly List<Boid> overlappingBoids = new List<Boid>();
 
-    // Hooked: caught by a bait and standing still. Down: hit by the Hunter, waiting to be gathered.
     public bool IsHooked { get; private set; }
     public bool IsDown { get; private set; }
     private bool IsFlocking => !IsHooked && !IsDown;
@@ -129,7 +127,6 @@ public class Boid : Agent
     private int Detect(float radius, LayerMask mask) =>
         Physics.OverlapSphereNonAlloc(transform.position, radius, detectionBuffer, mask, QueryTriggerInteraction.Collide);
 
-    // Fills the neighbor lists using only the boids whose colliders are inside the perception radius.
     private void DetectNearbyBoids()
     {
         neighbors.Clear();
@@ -250,7 +247,6 @@ public class Boid : Agent
         return wanderDirection * maxSpeed - _velocity;
     }
 
-    // Flees from where the Hunter is going to be, not from where it is now.
     private Vector3 Evade(Agent hunter)
     {
         Vector3 toHunter = hunter.transform.position - transform.position;
@@ -313,7 +309,6 @@ public class Boid : Agent
         transform.Rotate(0f, 90f, 90f, Space.Self);
     }
 
-    // Visual feedback while the Hunter is gathering this boid (progress goes from 0 to 1).
     public void SetGatherProgress(float progress)
     {
         transform.localScale = originalScale * Mathf.Lerp(1f, gatheredMinScale, progress);
@@ -344,11 +339,6 @@ public class Boid : Agent
         return new Vector3(direction.x, 0f, direction.y);
     }
 
-    // La consigna (1.12 Feedback) solo pide ver Separation, Alignment/Cohesion
-    // y visión para los Boids. baitDetectionRadius/arriveSlowRadius/interactRadius
-    // son detalle de implementación del bait: con 6+ Boids dibujando los 6 radios
-    // a la vez (en particular el amarillo, de diámetro 20 contra una zona de 30x30)
-    // la escena se vuelve ilegible. Quedan comentados por si los necesitás para debug puntual.
     private void OnDrawGizmos()
     {
         if (!drawGizmos) return;
@@ -362,13 +352,5 @@ public class Boid : Agent
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, evadeRadius);
 
-        // Gizmos.color = Color.yellow;
-        // Gizmos.DrawWireSphere(transform.position, baitDetectionRadius);
-
-        // Gizmos.color = Color.blue;
-        // Gizmos.DrawWireSphere(transform.position, arriveSlowRadius);
-
-        // Gizmos.color = Color.magenta;
-        // Gizmos.DrawWireSphere(transform.position, interactRadius);
     }
 }

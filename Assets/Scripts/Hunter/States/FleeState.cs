@@ -1,8 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-// A wolf was perceived. Picks the closest Safe zone by A* path length, runs there,
-// waits SafeZoneWaitTime and then goes back to Exit or Search.
 public class FleeState : HunterStateBase
 {
     private Transform targetZone;
@@ -27,7 +25,6 @@ public class FleeState : HunterStateBase
 
         if (targetZone == null)
         {
-            // No reachable Safe zone: nothing to run to, resume the normal activity.
             Resume();
             return;
         }
@@ -50,8 +47,6 @@ public class FleeState : HunterStateBase
         targetZone = null;
     }
 
-    // Exit if the objective is already complete, otherwise Search. If a wolf is still
-    // in sight, Search/Exit send the Hunter straight back here.
     private void Resume()
     {
         if (!TryExit())

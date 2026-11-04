@@ -60,7 +60,6 @@ public class Pathfinder : MonoBehaviour
 
         while (openSet.Count > 0)
         {
-            // Explore the candidate with the lowest estimated total cost.
             GridNode current = openSet[0];
 
             for (int i = 1; i < openSet.Count; i++)
@@ -83,7 +82,6 @@ public class Pathfinder : MonoBehaviour
                 if (closedSet.Contains(neighbor))
                     continue;
 
-                // Every horizontal or vertical step costs one grid cell.
                 float tentativeG = gScore[current] + 1f;
 
                 if (gScore.TryGetValue(neighbor, out float knownG)
@@ -92,7 +90,6 @@ public class Pathfinder : MonoBehaviour
                     continue;
                 }
 
-                // This route improves the best known cost to the neighbor.
                 cameFrom[neighbor] = current;
                 gScore[neighbor] = tentativeG;
                 fScore[neighbor] = tentativeG + Heuristic(neighbor, goal);

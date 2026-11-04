@@ -1,7 +1,5 @@
 using UnityEngine;
 
-// Reached the last known position without seeing the Hunter: looks around nearby
-// reachable points for SearchDuration, then forgets the target and patrols again.
 public class WolfSearchState : WolfStateBase
 {
     private static readonly Color SearchColor = new Color(1f, 0.9f, 0.2f);
@@ -36,7 +34,6 @@ public class WolfSearchState : WolfStateBase
             return;
         }
 
-        // Turn on the spot for a moment so the FOV sweeps the area.
         if (lookTimer > 0f)
         {
             lookTimer -= Time.deltaTime;
@@ -63,7 +60,6 @@ public class WolfSearchState : WolfStateBase
         }
     }
 
-    // Random point around the last known position that the wolf can reach with A*.
     private bool PickSearchPoint()
     {
         for (int i = 0; i < 6; i++)
