@@ -12,6 +12,12 @@ GameObject:
   - component: {fileID: 3759802032964520126}
   - component: {fileID: 4173954643764549580}
   - component: {fileID: 665367202312514343}
+  - component: {fileID: 2547403655074716572}
+  - component: {fileID: 4037427895616788565}
+  - component: {fileID: 1912360822910321653}
+  - component: {fileID: 1679035205465241068}
+  - component: {fileID: 6246315367277981621}
+  - component: {fileID: 1017502455800127187}
   m_Layer: 11
   m_Name: Wolf
   m_TagString: Untagged
@@ -70,40 +76,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9fdb55716bd84ca43aff113be1360adf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Wolf
-  hunter: {fileID: 0}
-  pathfinder: {fileID: 0}
-  animator: {fileID: 8759693333021633483}
   patrolSpeed: 2.5
   investigateSpeed: 4
   chaseSpeed: 5.5
-  turnSpeed: 540
-  waypoints: []
-  patrolMode: 0
-  viewRadius: 7
-  viewAngle: 110
-  eyeHeight: 0.4
-  obstacleMask:
+  hunterMask:
     serializedVersion: 2
-    m_Bits: 512
-  safeZoneMask:
-    serializedVersion: 2
-    m_Bits: 1024
-  bodyRadius: 0.25
+    m_Bits: 128
   captureRadius: 0.8
-  howlCooldown: 2
-  audioSource: {fileID: 665367202312514343}
-  howlClips:
-  - {fileID: 8300000, guid: 01763d6c835307b4b8ac18acb583bd0e, type: 3}
-  - {fileID: 8300000, guid: 44cc0e7a027d9ee41992b8c59512361d, type: 3}
-  - {fileID: 8300000, guid: 3493fd826f8e8384c808ca01056c6dd1, type: 3}
-  howlVolume: 1
-  alertClip: {fileID: 8300000, guid: 1a932346c61a4da408ee150ce7dfe39d, type: 3}
-  alertVolume: 0.5
-  maxSoundDuration: 3
-  pitchVariation: 0.1
   searchDuration: 5
   searchRadius: 3
   drawGizmos: 1
+  pauseOnDetection: 0
+  debugTarget: {fileID: 0}
+  goToDebugTarget: 0
 --- !u!82 &665367202312514343
 AudioSource:
   m_ObjectHideFlags: 0
@@ -201,6 +186,115 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &2547403655074716572
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3468175257473225495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5300609c67e1a2547b0d37d304701dee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FieldOfView
+  viewRadius: 7
+  viewAngle: 110
+  eyeHeight: 0.4
+  occlusionMask:
+    serializedVersion: 2
+    m_Bits: 512
+  drawGizmos: 1
+--- !u!114 &4037427895616788565
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3468175257473225495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c692518c654e0134188b70367579375e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PathMover
+  pathfinder: {fileID: 0}
+  turnSpeed: 540
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 512
+  forbiddenMask:
+    serializedVersion: 2
+    m_Bits: 1024
+  bodyRadius: 0.25
+  castHeight: 0.4
+  drawGizmos: 1
+--- !u!114 &1912360822910321653
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3468175257473225495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55548b9b1ae240c4c8b68849ba4dc8a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PatrolRoute
+  waypoints: []
+  mode: 0
+  drawGizmos: 1
+--- !u!114 &1679035205465241068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3468175257473225495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b11880615139c46428ec89b196b89a70, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WolfPack
+  howlCooldown: 2
+  howlClips:
+  - {fileID: 8300000, guid: 01763d6c835307b4b8ac18acb583bd0e, type: 3}
+  - {fileID: 8300000, guid: 44cc0e7a027d9ee41992b8c59512361d, type: 3}
+  - {fileID: 8300000, guid: 3493fd826f8e8384c808ca01056c6dd1, type: 3}
+  howlVolume: 1
+  alertClip: {fileID: 8300000, guid: 1a932346c61a4da408ee150ce7dfe39d, type: 3}
+  alertVolume: 0.5
+--- !u!114 &6246315367277981621
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3468175257473225495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e4f01b2b65877d44bd80cbf1ca6260f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AgentAudio
+  audioSource: {fileID: 0}
+  maxSoundDuration: 3
+  pitchVariation: 0.1
+--- !u!114 &1017502455800127187
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3468175257473225495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 093b64b9ca213e548abf705563490927, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WalkAnimator
+  animator: {fileID: 0}
+  walkClip: root_Walk
+  idleClip: root_Idle
+  referenceSpeed: 2.5
+  crossFade: 0.1
 --- !u!1001 &326769009395211042
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -613,10 +707,5 @@ PrefabInstance:
 --- !u!4 &3418375571051213233 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 3168397609374771859, guid: ea31aeb36ab835d429489439e57ac400, type: 3}
-  m_PrefabInstance: {fileID: 326769009395211042}
-  m_PrefabAsset: {fileID: 0}
---- !u!95 &8759693333021633483 stripped
-Animator:
-  m_CorrespondingSourceObject: {fileID: 9014029430511055081, guid: ea31aeb36ab835d429489439e57ac400, type: 3}
   m_PrefabInstance: {fileID: 326769009395211042}
   m_PrefabAsset: {fileID: 0}

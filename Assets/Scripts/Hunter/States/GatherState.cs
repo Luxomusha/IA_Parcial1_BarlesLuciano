@@ -30,27 +30,27 @@ public class GatherState : HunterStateBase
             return;
         }
 
-        float remaining = hunter.MoveToTarget(target.transform.position, hunter.MeleeAttackRadius);
-        if (remaining > hunter.MeleeAttackRadius + ReachTolerance)
+        float remaining = hunter.Mover.MoveToTarget(target.transform.position, hunter.MaxSpeed, hunter.Combat.MeleeAttackRadius);
+        if (remaining > hunter.Combat.MeleeAttackRadius + ReachTolerance)
         {
             hunter.SetColor(MovingColor);
-            hunter.HideGatherBeam();
+            hunter.Gathering.HideBeam();
             return;
         }
 
-        hunter.Stop();
+        hunter.Mover.Stop();
         gatherTimer += Time.deltaTime;
 
-        float progress = Mathf.Clamp01(gatherTimer / hunter.GatherDuration);
+        float progress = Mathf.Clamp01(gatherTimer / hunter.Gathering.GatherDuration);
         target.SetGatherProgress(progress);
         hunter.SetColor(Color.Lerp(MovingColor, GatheringColor, Mathf.PingPong(gatherTimer * 4f, 1f)));
-        hunter.ShowGatherBeam(target.transform.position);
+        hunter.Gathering.ShowBeam(target.transform.position);
 
         if (progress < 1f) return;
 
         target.Respawn();
         target = null;
-        hunter.AddGather();
+        hunter.Gathering.AddGather();
 
         if (!TryExit())
             ChangeState(hunter.DefaultState);
@@ -61,7 +61,7 @@ public class GatherState : HunterStateBase
         if (target != null && target.IsDown)
             target.SetGatherProgress(0f);
 
-        hunter.HideGatherBeam();
+        hunter.Gathering.HideBeam();
         target = null;
         gatherTimer = 0f;
     }

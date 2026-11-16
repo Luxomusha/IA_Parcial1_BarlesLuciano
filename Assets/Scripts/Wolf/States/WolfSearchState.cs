@@ -37,8 +37,8 @@ public class WolfSearchState : WolfStateBase
         if (lookTimer > 0f)
         {
             lookTimer -= Time.deltaTime;
-            wolf.Stop();
-            wolf.Turn(LookAroundTurnSpeed * Time.deltaTime);
+            wolf.Mover.Stop();
+            wolf.Mover.Turn(LookAroundTurnSpeed * Time.deltaTime);
             return;
         }
 
@@ -51,12 +51,12 @@ public class WolfSearchState : WolfStateBase
             return;
         }
 
-        wolf.MoveToTarget(searchPoint, wolf.InvestigateSpeed);
-        if (wolf.HasArrived(searchPoint) || wolf.PathFailed)
+        wolf.Mover.MoveToTarget(searchPoint, wolf.InvestigateSpeed);
+        if (wolf.Mover.HasArrived(searchPoint) || wolf.Mover.PathFailed)
         {
             hasSearchPoint = false;
             lookTimer = LookAroundTime;
-            wolf.ClearPath();
+            wolf.Mover.ClearPath();
         }
     }
 
@@ -66,10 +66,10 @@ public class WolfSearchState : WolfStateBase
         {
             Vector2 offset = Random.insideUnitCircle * wolf.SearchRadius;
             Vector3 point = wolf.LastKnownPosition + new Vector3(offset.x, 0f, offset.y);
-            if (wolf.IsReachable(point))
+            if (wolf.Mover.IsReachable(point))
             {
                 searchPoint = point;
-                wolf.ClearPath();
+                wolf.Mover.ClearPath();
                 return true;
             }
         }

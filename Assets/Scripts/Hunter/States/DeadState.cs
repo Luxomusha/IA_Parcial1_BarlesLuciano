@@ -9,7 +9,7 @@ public class DeadState : HunterStateBase
     public override void Enter()
     {
         base.Enter();
-        hunter.Stop();
+        hunter.Mover.Stop();
         hunter.SetVisible(false);
         timer = 0f;
     }

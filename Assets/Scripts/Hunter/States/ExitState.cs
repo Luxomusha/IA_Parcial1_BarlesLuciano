@@ -14,7 +14,7 @@ public class ExitState : HunterStateBase
     {
         if (TryDead() || TryFlee()) return;
 
-        if (!hunter.FollowPathTo(hunter.ExitPosition)) return;
+        if (!hunter.Mover.FollowPathTo(hunter.ExitPosition, hunter.MaxSpeed)) return;
 
         hunter.RespawnAtStart();
         ChangeState(hunter.DefaultState);

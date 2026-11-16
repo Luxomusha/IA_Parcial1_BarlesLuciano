@@ -14,7 +14,7 @@ public abstract class WolfStateBase : State
     public override void Enter()
     {
         wolf.NotifyStateEntered(Key);
-        wolf.ClearPath();
+        wolf.Mover.ClearPath();
     }
 
     protected void ChangeState(Wolf.WolfState state) => StateMachine.ChangeState(state);
@@ -49,7 +49,7 @@ public abstract class WolfStateBase : State
 
     protected bool TryLoseTarget()
     {
-        if (wolf.IsHunterAvailable) return false;
+        if (!wolf.HasLostTarget) return false;
 
         wolf.ForgetTarget();
         ChangeState(Wolf.WolfState.Patrol);

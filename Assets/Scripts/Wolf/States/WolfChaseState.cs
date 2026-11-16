@@ -16,7 +16,7 @@ public class WolfChaseState : WolfStateBase
     {
         if (TryLoseTarget() || TryCatch()) return;
 
-        if (!wolf.CanSeeHunter())
+        if (!wolf.CanTrackHunter())
         {
             ChangeState(Wolf.WolfState.Investigate);
             return;
@@ -24,7 +24,7 @@ public class WolfChaseState : WolfStateBase
 
         Vector3 hunterPosition = wolf.Target.transform.position;
         wolf.SetLastKnownPosition(hunterPosition);
-        wolf.MoveToTarget(hunterPosition, wolf.ChaseSpeed);
+        wolf.Mover.MoveToTarget(hunterPosition, wolf.ChaseSpeed);
 
         wolf.TryConsumeAlert(out _);
     }

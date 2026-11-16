@@ -16,19 +16,19 @@ public class WolfPatrolState : WolfStateBase
     {
         if (TryCatch() || TryChase() || TryAlert()) return;
 
-        if (!wolf.HasWaypoints)
+        if (!wolf.Route.HasWaypoints)
         {
-            wolf.Stop();
+            wolf.Mover.Stop();
             return;
         }
 
-        Vector3 waypoint = wolf.CurrentWaypoint;
-        wolf.MoveToTarget(waypoint, wolf.PatrolSpeed);
+        Vector3 waypoint = wolf.Route.CurrentWaypoint;
+        wolf.Mover.MoveToTarget(waypoint, wolf.PatrolSpeed);
 
-        if (wolf.HasArrived(waypoint))
+        if (wolf.Mover.HasArrived(waypoint))
         {
-            wolf.AdvanceWaypoint();
-            wolf.ClearPath();
+            wolf.Route.Advance();
+            wolf.Mover.ClearPath();
         }
     }
 }

@@ -14,7 +14,7 @@ public abstract class HunterStateBase : State
     public override void Enter()
     {
         hunter.NotifyStateEntered(Key);
-        hunter.ClearPath();
+        hunter.Mover.ClearPath();
     }
 
     protected void ChangeState(Hunter.HunterState state) => StateMachine.ChangeState(state);
@@ -51,7 +51,7 @@ public abstract class HunterStateBase : State
 
     protected bool TryAttack()
     {
-        if (!hunter.IsAttackReady || hunter.FindClosestActiveBoid() == null) return false;
+        if (!hunter.Combat.IsAttackReady || hunter.FindClosestActiveBoid() == null) return false;
         ChangeState(Hunter.HunterState.Attack);
         return true;
     }

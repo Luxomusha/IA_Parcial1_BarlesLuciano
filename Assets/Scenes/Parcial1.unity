@@ -895,6 +895,12 @@ GameObject:
   m_Component:
   - component: {fileID: 1478685166}
   - component: {fileID: 1478685167}
+  - component: {fileID: 1478685173}
+  - component: {fileID: 1478685172}
+  - component: {fileID: 1478685171}
+  - component: {fileID: 1478685170}
+  - component: {fileID: 1478685169}
+  - component: {fileID: 1478685168}
   m_Layer: 7
   m_Name: Hunter
   m_TagString: Untagged
@@ -932,26 +938,138 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Cazador
   maxSpeed: 6.88
+  huntingGround: {fileID: 0}
+  startZone: {fileID: 0}
+  exitZone: {fileID: 0}
+  safeZones: []
+  safeZoneMask:
+    serializedVersion: 2
+    m_Bits: 0
+  respawnTime: 5
+  safeZoneWaitTime: 3
+  boidMask:
+    serializedVersion: 2
+    m_Bits: 64
+  wolfMask:
+    serializedVersion: 2
+    m_Bits: 0
+  drawGizmos: 1
+--- !u!114 &1478685168
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478685165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c68bffffdeaadf4d92a103256dac2c1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BaitSpawner
+  baitPrefab: {fileID: 295463858751610706, guid: 83cd0f1d941691243ace8465bb3fc886, type: 3}
+  baitContainer: {fileID: 969110380}
+  spawnInterval: 6.4
+  maxActiveBaits: 3
+--- !u!114 &1478685169
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478685165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d330619dc01c47a4193879faf0ebdcba, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HunterGathering
+  requiredGathers: 3
+  gatherDuration: 2.55
+  gatherBeam: {fileID: 1909042716}
+--- !u!114 &1478685170
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478685165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2606643cd29632745a27a86e9738ab02, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HunterCombat
+  meleeAttackRadius: 2.96
+  rangeAttackRadius: 5
+  timeBetweenAttacks: 3
+  attackBeam: {fileID: 0}
+  attackBeamDuration: 0.2
+  drawGizmos: 1
+--- !u!114 &1478685171
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478685165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55548b9b1ae240c4c8b68849ba4dc8a6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PatrolRoute
   waypoints:
   - {fileID: 1410736185}
   - {fileID: 592081563}
   - {fileID: 802990712}
   - {fileID: 1340536646}
-  pingPongWaypoints: 1
-  baitPrefab: {fileID: 295463858751610706, guid: 83cd0f1d941691243ace8465bb3fc886, type: 3}
-  baitContainer: {fileID: 969110380}
-  spawnInterval: 6.4
-  maxActiveBaits: 3
-  perceptionRadius: 9.74
-  meleeAttackRadius: 2.96
-  timeBetweenAttacks: 3
-  gatherDuration: 2.55
-  gatherBeam: {fileID: 1909042716}
-  boidMask:
-    serializedVersion: 2
-    m_Bits: 64
-  maxDetectedColliders: 32
+  mode: 0
   drawGizmos: 1
+--- !u!114 &1478685172
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478685165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c692518c654e0134188b70367579375e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PathMover
+  pathfinder: {fileID: 0}
+  turnSpeed: 0
+  obstacleMask:
+    serializedVersion: 2
+    m_Bits: 0
+  forbiddenMask:
+    serializedVersion: 2
+    m_Bits: 0
+  movementCollider: {fileID: 504275503}
+  collisionSkin: 0.01
+  bodyRadius: 0.25
+  castHeight: 0.4
+  warnWhenNoPath: 1
+  drawGizmos: 1
+  pathColor: {r: 1, g: 1, b: 1, a: 1}
+--- !u!114 &1478685173
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1478685165}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5300609c67e1a2547b0d37d304701dee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FieldOfView
+  viewRadius: 9.74
+  viewAngle: 360
+  eyeHeight: 0
+  occlusionMask:
+    serializedVersion: 2
+    m_Bits: 0
+  maxColliders: 32
+  drawGizmos: 1
+  gizmoColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
 --- !u!1 &1532773172
 GameObject:
   m_ObjectHideFlags: 0

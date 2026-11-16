@@ -23,22 +23,22 @@ public class SearchState : HunterStateBase
 
         if (!hunter.IsInHuntingGround && !hasWanderTarget)
         {
-            hunter.FollowPathTo(hunter.HuntingGroundCenter);
+            hunter.Mover.FollowPathTo(hunter.HuntingGroundCenter, hunter.MaxSpeed);
             return;
         }
 
         if (!hasWanderTarget)
             PickWanderTarget();
 
-        if (hunter.FollowPathTo(wanderTarget) || hunter.PathFailed)
+        if (hunter.Mover.FollowPathTo(wanderTarget, hunter.MaxSpeed) || hunter.Mover.PathFailed)
             PickWanderTarget();
 
         if (!hunter.IsInHuntingGround) return;
 
         spawnTimer += Time.deltaTime;
-        if (spawnTimer >= hunter.SpawnInterval)
+        if (spawnTimer >= hunter.Baits.SpawnInterval)
         {
-            hunter.TrySpawnBait(hunter.RandomHuntingGroundPoint());
+            hunter.Baits.TrySpawn(hunter.RandomHuntingGroundPoint());
             spawnTimer = 0f;
         }
     }
@@ -47,6 +47,6 @@ public class SearchState : HunterStateBase
     {
         wanderTarget = hunter.RandomHuntingGroundPoint();
         hasWanderTarget = true;
-        hunter.ClearPath();
+        hunter.Mover.ClearPath();
     }
 }

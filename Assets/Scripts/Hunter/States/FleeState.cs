@@ -31,11 +31,11 @@ public class FleeState : HunterStateBase
 
         if (!arrived)
         {
-            arrived = hunter.FollowPathTo(targetZone.position);
+            arrived = hunter.Mover.FollowPathTo(targetZone.position, hunter.MaxSpeed);
             return;
         }
 
-        hunter.Stop();
+        hunter.Mover.Stop();
         waitTimer += Time.deltaTime;
         if (waitTimer >= hunter.SafeZoneWaitTime)
             Resume();
@@ -62,7 +62,7 @@ public class FleeState : HunterStateBase
         {
             if (zone == null) continue;
 
-            List<Vector3> path = hunter.FindPath(zone.position);
+            List<Vector3> path = hunter.Mover.FindPath(zone.position);
             if (path.Count > 0 && path.Count < bestLength)
             {
                 bestLength = path.Count;

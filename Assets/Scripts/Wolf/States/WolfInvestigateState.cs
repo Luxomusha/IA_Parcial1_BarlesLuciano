@@ -19,13 +19,13 @@ public class WolfInvestigateState : WolfStateBase
         if (wolf.TryConsumeAlert(out Vector3 alertPosition))
         {
             wolf.SetLastKnownPosition(alertPosition);
-            wolf.ClearPath();
+            wolf.Mover.ClearPath();
         }
 
         Vector3 target = wolf.LastKnownPosition;
-        wolf.MoveToTarget(target, wolf.InvestigateSpeed);
+        wolf.Mover.MoveToTarget(target, wolf.InvestigateSpeed);
 
-        if (wolf.HasArrived(target) || wolf.PathFailed)
+        if (wolf.Mover.HasArrived(target) || wolf.Mover.PathFailed)
             ChangeState(Wolf.WolfState.Search);
     }
 }

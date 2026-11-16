@@ -43,37 +43,24 @@ public class Pathfinder : MonoBehaviour
         GridNode goal,
         bool excludeSafeZones)
     {
-        List<GridNode> openSet = new() { start };
+        PriorityQueue<GridNode> frontier = new();
+        Dictionary<GridNode, float> openSet = new();
         HashSet<GridNode> closedSet = new();
-
-        Dictionary<GridNode, float> gScore = new()
-        {
-            [start] = 0f
-        };
-
-        Dictionary<GridNode, float> fScore = new()
-        {
-            [start] = Heuristic(start, goal)
-        };
-
+        Dictionary<GridNode, float> gScore = new() { [start] = 0f };
         Dictionary<GridNode, GridNode> cameFrom = new();
 
-        while (openSet.Count > 0)
+        Open(start, Heuristic(start, goal), frontier, openSet);
+
+        while (frontier.Count > 0)
         {
-            GridNode current = openSet[0];
+            GridNode current = frontier.Dequeue();
 
-            for (int i = 1; i < openSet.Count; i++)
-            {
-                GridNode candidate = openSet[i];
-
-                if (fScore[candidate] < fScore[current])
-                    current = candidate;
-            }
+            if (!openSet.Remove(current))
+                continue;
 
             if (current == goal)
                 return ReconstructPath(cameFrom, current);
 
-            openSet.Remove(current);
             closedSet.Add(current);
 
             foreach (GridNode neighbor in
@@ -92,14 +79,23 @@ public class Pathfinder : MonoBehaviour
 
                 cameFrom[neighbor] = current;
                 gScore[neighbor] = tentativeG;
-                fScore[neighbor] = tentativeG + Heuristic(neighbor, goal);
 
-                if (!openSet.Contains(neighbor))
-                    openSet.Add(neighbor);
+                float f = tentativeG + Heuristic(neighbor, goal);
+                Open(neighbor, f, frontier, openSet);
             }
         }
 
         return new List<GridNode>();
+    }
+
+    private void Open(
+        GridNode node,
+        float f,
+        PriorityQueue<GridNode> frontier,
+        Dictionary<GridNode, float> openSet)
+    {
+        openSet[node] = f;
+        frontier.Enqueue(node, f);
     }
 
     private float Heuristic(GridNode a, GridNode b)

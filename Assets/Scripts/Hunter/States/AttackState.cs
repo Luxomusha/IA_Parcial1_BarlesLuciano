@@ -25,31 +25,31 @@ public class AttackState : HunterStateBase
 
         float distance = PlanarDistance(target.transform.position, hunter.transform.position);
 
-        if (distance <= hunter.MeleeAttackRadius)
+        if (distance <= hunter.Combat.MeleeAttackRadius)
         {
             Attack(ranged: false);
             return;
         }
 
-        if (distance <= hunter.RangeAttackRadius)
+        if (distance <= hunter.Combat.RangeAttackRadius)
         {
             Attack(ranged: true);
             return;
         }
 
-        hunter.MoveToTarget(PredictPosition(distance));
+        hunter.Mover.MoveToTarget(PredictPosition(distance), hunter.MaxSpeed);
     }
 
     public override void Exit()
     {
         target = null;
-        hunter.Stop();
+        hunter.Mover.Stop();
     }
 
     private void Attack(bool ranged)
     {
-        hunter.Stop();
-        hunter.PerformAttack(target, ranged);
+        hunter.Mover.Stop();
+        hunter.Attack(target, ranged);
         ChangeState(hunter.DefaultState);
     }
 
