@@ -44,6 +44,10 @@ GameObject:
   - component: {fileID: 718971145923351302}
   - component: {fileID: 7561627356400574119}
   - component: {fileID: 1993105325714608682}
+  - component: {fileID: 2638230933601428681}
+  - component: {fileID: 4432336440422321457}
+  - component: {fileID: 4872740468919139120}
+  - component: {fileID: 7487123427926794132}
   m_Layer: 6
   m_Name: FoxBoid
   m_TagString: Untagged
@@ -82,30 +86,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Boid
   maxSpeed: 4
   maxSteering: 5
-  separationRadius: 1.53
-  neighborRadius: 2.47
-  separationWeight: 1.6
-  alignmentWeight: 1.3
-  cohesionWeight: 1.3
-  wanderWeight: 0.5
-  wanderJitter: 1
   evadeRadius: 2.75
-  baitDetectionRadius: 6.66
-  arriveSlowRadius: 2.23
-  interactRadius: 1.41
-  boidMask:
-    serializedVersion: 2
-    m_Bits: 64
   hunterMask:
     serializedVersion: 2
     m_Bits: 128
+  baitDetectionRadius: 6.66
+  arriveSlowRadius: 2.23
+  interactRadius: 1.41
   baitMask:
     serializedVersion: 2
     m_Bits: 256
-  maxDetectedColliders: 32
-  gatheredMinScale: 0.3
+  flockArea: {fileID: 0}
   drawGizmos: 1
-  painSound: {fileID: 8300000, guid: 0c1d4d9bf80fa144498130c017411fd7, type: 3}
 --- !u!136 &718971145923351302
 CapsuleCollider:
   m_ObjectHideFlags: 0
@@ -168,6 +160,80 @@ ConstantForce:
   m_RelativeForce: {x: 0, y: 0, z: 0}
   m_Torque: {x: 0, y: 0, z: 0}
   m_RelativeTorque: {x: 0, y: 0, z: 0}
+--- !u!114 &2638230933601428681
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5668135065367516708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5300609c67e1a2547b0d37d304701dee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::FieldOfView
+  viewRadius: 6.66
+  viewAngle: 360
+  eyeHeight: 0
+  occlusionMask:
+    serializedVersion: 2
+    m_Bits: 0
+  maxColliders: 32
+  drawGizmos: 0
+  gizmoColor: {r: 1, g: 0.6, b: 0, a: 1}
+--- !u!114 &4432336440422321457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5668135065367516708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d20670895facb24284da5224ffef387, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoidFlocking
+  separationRadius: 1.53
+  neighborRadius: 2.47
+  boidMask:
+    serializedVersion: 2
+    m_Bits: 64
+  maxDetectedColliders: 32
+  separationWeight: 1.6
+  alignmentWeight: 1.3
+  cohesionWeight: 1.3
+  wanderWeight: 0.5
+  wanderJitter: 1
+  drawGizmos: 1
+--- !u!114 &4872740468919139120
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5668135065367516708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 91f79d2594b2f0148a5ccc6fb23dfc5b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::BoidGatherable
+  gatheredMinScale: 0.3
+  painSound: {fileID: 8300000, guid: 0c1d4d9bf80fa144498130c017411fd7, type: 3}
+--- !u!114 &7487123427926794132
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5668135065367516708}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9e4f01b2b65877d44bd80cbf1ca6260f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AgentAudio
+  audioSource: {fileID: 0}
+  maxSoundDuration: 0
+  pitchVariation: 0
 --- !u!1001 &8789237254843277851
 PrefabInstance:
   m_ObjectHideFlags: 0

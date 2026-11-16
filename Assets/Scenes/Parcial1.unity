@@ -369,10 +369,14 @@ PrefabInstance:
     m_TransformParent: {fileID: 2080148318}
     m_Modifications:
     - target: {fileID: 3052955101833952932, guid: ead969cd50be4e945b717643f5d6d75c, type: 3}
+      propertyPath: flockArea
+      value: 
+      objectReference: {fileID: 2000089794}
+    - target: {fileID: 4432336440422321457, guid: ead969cd50be4e945b717643f5d6d75c, type: 3}
       propertyPath: neighborRadius
       value: 4.23
       objectReference: {fileID: 0}
-    - target: {fileID: 3052955101833952932, guid: ead969cd50be4e945b717643f5d6d75c, type: 3}
+    - target: {fileID: 4432336440422321457, guid: ead969cd50be4e945b717643f5d6d75c, type: 3}
       propertyPath: separationRadius
       value: 3.82
       objectReference: {fileID: 0}
@@ -641,6 +645,10 @@ PrefabInstance:
       propertyPath: maxSpeed
       value: 2.2
       objectReference: {fileID: 0}
+    - target: {fileID: 3052955101833952932, guid: ead969cd50be4e945b717643f5d6d75c, type: 3}
+      propertyPath: flockArea
+      value: 
+      objectReference: {fileID: 2000089794}
     - target: {fileID: 5668135065367516708, guid: ead969cd50be4e945b717643f5d6d75c, type: 3}
       propertyPath: m_Name
       value: FoxBoid (5)
@@ -800,6 +808,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2080148318}
     m_Modifications:
+    - target: {fileID: 3052955101833952932, guid: ead969cd50be4e945b717643f5d6d75c, type: 3}
+      propertyPath: flockArea
+      value: 
+      objectReference: {fileID: 2000089794}
     - target: {fileID: 5668135065367516708, guid: ead969cd50be4e945b717643f5d6d75c, type: 3}
       propertyPath: m_Name
       value: FoxBoid (6)
@@ -1191,6 +1203,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2080148318}
     m_Modifications:
+    - target: {fileID: 3052955101833952932, guid: ead969cd50be4e945b717643f5d6d75c, type: 3}
+      propertyPath: flockArea
+      value: 
+      objectReference: {fileID: 2000089794}
     - target: {fileID: 5668135065367516708, guid: ead969cd50be4e945b717643f5d6d75c, type: 3}
       propertyPath: m_Name
       value: FoxBoid (3)
@@ -1253,6 +1269,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2080148318}
     m_Modifications:
+    - target: {fileID: 3052955101833952932, guid: ead969cd50be4e945b717643f5d6d75c, type: 3}
+      propertyPath: flockArea
+      value: 
+      objectReference: {fileID: 2000089794}
     - target: {fileID: 5668135065367516708, guid: ead969cd50be4e945b717643f5d6d75c, type: 3}
       propertyPath: m_Name
       value: FoxBoid (1)
@@ -1466,6 +1486,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2080148318}
     m_Modifications:
+    - target: {fileID: 3052955101833952932, guid: ead969cd50be4e945b717643f5d6d75c, type: 3}
+      propertyPath: flockArea
+      value: 
+      objectReference: {fileID: 2000089794}
     - target: {fileID: 5668135065367516708, guid: ead969cd50be4e945b717643f5d6d75c, type: 3}
       propertyPath: m_Name
       value: FoxBoid (4)

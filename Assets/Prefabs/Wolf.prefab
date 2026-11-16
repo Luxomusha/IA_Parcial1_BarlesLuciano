@@ -18,6 +18,7 @@ GameObject:
   - component: {fileID: 1679035205465241068}
   - component: {fileID: 6246315367277981621}
   - component: {fileID: 1017502455800127187}
+  - component: {fileID: 1226653610940668748}
   m_Layer: 11
   m_Name: Wolf
   m_TagString: Untagged
@@ -86,9 +87,6 @@ MonoBehaviour:
   searchDuration: 5
   searchRadius: 3
   drawGizmos: 1
-  pauseOnDetection: 0
-  debugTarget: {fileID: 0}
-  goToDebugTarget: 0
 --- !u!82 &665367202312514343
 AudioSource:
   m_ObjectHideFlags: 0
@@ -204,7 +202,9 @@ MonoBehaviour:
   occlusionMask:
     serializedVersion: 2
     m_Bits: 512
+  maxColliders: 16
   drawGizmos: 1
+  gizmoColor: {r: 1, g: 0.6, b: 0, a: 1}
 --- !u!114 &4037427895616788565
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -225,9 +225,13 @@ MonoBehaviour:
   forbiddenMask:
     serializedVersion: 2
     m_Bits: 1024
+  movementCollider: {fileID: 0}
+  collisionSkin: 0.01
   bodyRadius: 0.25
   castHeight: 0.4
+  warnWhenNoPath: 0
   drawGizmos: 1
+  pathColor: {r: 0, g: 1, b: 1, a: 1}
 --- !u!114 &1912360822910321653
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -295,6 +299,22 @@ MonoBehaviour:
   idleClip: root_Idle
   referenceSpeed: 2.5
   crossFade: 0.1
+--- !u!114 &1226653610940668748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3468175257473225495}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 65c6c8d9d0abac34bb2a457887b89a78, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::WolfDebug
+  logDetections: 1
+  pauseOnDetection: 0
+  debugTarget: {fileID: 0}
+  goToDebugTarget: 0
 --- !u!1001 &326769009395211042
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -26,14 +26,10 @@ public class Wolf : Agent
     [SerializeField, Min(0f)] private float searchDuration = 5f;
     [SerializeField, Min(0f)] private float searchRadius = 3f;
 
-    [Header("Gizmos / Debug")]
+    [Header("Gizmos")]
     [SerializeField] private bool drawGizmos = true;
-    [Tooltip("Pauses the Editor (Debug.Break) the moment this wolf detects the Hunter, to inspect the frame.")]
-    [SerializeField] private bool pauseOnDetection;
-    [Tooltip("Debug: Transform used by the context menu \"Debug/Go to debug target\".")]
-    [SerializeField] private Transform debugTarget;
-    [Tooltip("Debug (Play mode): tick it to send this wolf to Debug Target. It unticks itself.")]
-    [SerializeField] private bool goToDebugTarget;
+
+    public event Action<Hunter> HunterDetected;
 
     private static readonly Predicate<Hunter> IsAvailable = IsHunterAvailable;
 
@@ -73,11 +69,7 @@ public class Wolf : Agent
 
     private void Start() => stateMachine.ChangeState(WolfState.Patrol);
 
-    private void Update()
-    {
-        CheckDebugToggle();
-        stateMachine.Update();
-    }
+    private void Update() => stateMachine.Update();
 
     private void CacheComponents()
     {
@@ -153,15 +145,7 @@ public class Wolf : Agent
         chaseSpeed = Mathf.Min(chaseSpeed, limit);
     }
 
-    public void ReportDetection()
-    {
-        Vector3 toHunter = hunter.transform.position - transform.position;
-        toHunter.y = 0f;
-        Debug.Log($"{name} SEES the Hunter: distance {toHunter.magnitude:0.00}/{fieldOfView.ViewRadius}, " +
-                  $"wolf {transform.position}, hunter {hunter.transform.position}", this);
-
-        if (pauseOnDetection) Debug.Break();
-    }
+    public void ReportDetection() => HunterDetected?.Invoke(hunter);
 
     #endregion
 
@@ -197,33 +181,12 @@ public class Wolf : Agent
 
     #endregion
 
-    #region Debug
+    #region Visuals
 
     public void SetColor(Color color)
     {
         foreach (Renderer r in renderers)
             r.material.color = color;
-    }
-
-    private void CheckDebugToggle()
-    {
-        if (!goToDebugTarget) return;
-
-        goToDebugTarget = false;
-        DebugGoToTarget();
-    }
-
-    [ContextMenu("Debug/Go to debug target")]
-    private void DebugGoToTarget()
-    {
-        if (!Application.isPlaying || debugTarget == null)
-        {
-            Debug.LogWarning($"{name}: enter Play mode and assign Debug Target first.", this);
-            return;
-        }
-
-        Pack.ReceiveAlert(debugTarget.position, null, null);
-        Debug.Log($"{name}: debug alert to {debugTarget.position}.", this);
     }
 
     private void OnDrawGizmos()

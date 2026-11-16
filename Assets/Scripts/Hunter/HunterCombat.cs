@@ -35,7 +35,7 @@ public class HunterCombat : MonoBehaviour
 
     public void PerformAttack(Boid target, Vector3 origin, bool ranged)
     {
-        target.ReceiveAttack();
+        target.Gatherable.ReceiveAttack();
         lastAttackTime = Time.time;
         ShowBeam(origin, target.transform.position, ranged);
     }

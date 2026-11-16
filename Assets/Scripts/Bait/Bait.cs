@@ -25,7 +25,7 @@ public class Bait : MonoBehaviour
         if (consumed) return;
 
         consumed = true;
-        boid.Hook();
+        boid.Gatherable.Hook();
         Destroy(gameObject);
     }
 

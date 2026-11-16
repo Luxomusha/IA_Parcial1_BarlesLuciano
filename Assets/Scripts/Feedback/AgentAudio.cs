@@ -16,6 +16,13 @@ public class AgentAudio : MonoBehaviour
     private void Awake()
     {
         if (audioSource == null) audioSource = GetComponent<AudioSource>();
+        if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
+    }
+
+    public void PlayOneShot(AudioClip clip, float volume = 1f)
+    {
+        if (audioSource != null && clip != null)
+            audioSource.PlayOneShot(clip, volume);
     }
 
     private void Update()

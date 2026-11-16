@@ -30,14 +30,24 @@ public class FieldOfView : MonoBehaviour
 
     public T FindClosestVisible<T>(LayerMask mask, Predicate<T> isValid = null) where T : Component
     {
-        int count = Physics.OverlapSphereNonAlloc(transform.position, viewRadius, buffer, mask, QueryTriggerInteraction.Collide);
+        return FindClosest(viewRadius, mask, isValid, true, true);
+    }
+
+    public T FindClosestInRadius<T>(float radius, LayerMask mask, Predicate<T> isValid = null) where T : Component
+    {
+        return FindClosest(radius, mask, isValid, false, false);
+    }
+
+    private T FindClosest<T>(float radius, LayerMask mask, Predicate<T> isValid, bool requireCone, bool requireSight) where T : Component
+    {
+        int count = Physics.OverlapSphereNonAlloc(transform.position, radius, buffer, mask, QueryTriggerInteraction.Collide);
         T closest = null;
         float bestSqrDistance = float.MaxValue;
 
         for (int i = 0; i < count; i++)
         {
             T candidate = buffer[i].GetComponentInParent<T>();
-            if (!IsAcceptable(candidate, isValid, true, true)) continue;
+            if (!IsAcceptable(candidate, isValid, requireCone, requireSight)) continue;
 
             float sqrDistance = (candidate.transform.position - transform.position).sqrMagnitude;
             if (sqrDistance >= bestSqrDistance) continue;

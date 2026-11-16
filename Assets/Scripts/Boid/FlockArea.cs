@@ -2,19 +2,9 @@ using UnityEngine;
 
 public class FlockArea : MonoBehaviour
 {
-    public static FlockArea Instance { get; private set; }
-
     [Header("Area size")]
     [SerializeField] private Vector3 size = new Vector3(30f, 15f, 30f);
     [SerializeField] private float groundHeight = 0f;
-
-    private void OnEnable() => Instance = this;
-
-    private void OnDisable()
-    {
-        if (Instance == this)
-            Instance = null;
-    }
 
     public Vector3 Wrap(Vector3 position)
     {

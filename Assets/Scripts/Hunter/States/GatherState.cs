@@ -42,13 +42,13 @@ public class GatherState : HunterStateBase
         gatherTimer += Time.deltaTime;
 
         float progress = Mathf.Clamp01(gatherTimer / hunter.Gathering.GatherDuration);
-        target.SetGatherProgress(progress);
+        target.Gatherable.SetGatherProgress(progress);
         hunter.SetColor(Color.Lerp(MovingColor, GatheringColor, Mathf.PingPong(gatherTimer * 4f, 1f)));
         hunter.Gathering.ShowBeam(target.transform.position);
 
         if (progress < 1f) return;
 
-        target.Respawn();
+        target.Gatherable.Respawn();
         target = null;
         hunter.Gathering.AddGather();
 
@@ -59,7 +59,7 @@ public class GatherState : HunterStateBase
     public override void Exit()
     {
         if (target != null && target.IsDown)
-            target.SetGatherProgress(0f);
+            target.Gatherable.SetGatherProgress(0f);
 
         hunter.Gathering.HideBeam();
         target = null;
